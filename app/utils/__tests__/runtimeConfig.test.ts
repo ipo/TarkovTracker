@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { parseEnv } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import {
   GITHUB_IMAGE_DOMAINS,
@@ -32,6 +35,15 @@ describe('resolveSupabaseRuntimeConfig', () => {
   });
   it('allows both shared credentials to be absent for offline development', () => {
     expect(resolveSupabaseRuntimeConfig({})).toEqual({
+      privateAnonKey: '',
+      privateUrl: '',
+      publicAnonKey: '',
+      publicUrl: '',
+    });
+  });
+  it('selects offline development with the committed local env template', () => {
+    const env = parseEnv(readFileSync(resolve('.env.example.local'), 'utf8'));
+    expect(resolveSupabaseRuntimeConfig(env)).toEqual({
       privateAnonKey: '',
       privateUrl: '',
       publicAnonKey: '',

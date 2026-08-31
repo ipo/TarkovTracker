@@ -34,7 +34,8 @@ const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 
 const appVersion = packageJson.version ?? 'dev';
 const clientLogSinkUrl = resolveClientLogSinkUrl(process.env);
 const isNonProduction = process.env.NODE_ENV !== 'production';
-const CONFIGURED_NITRO_PRESET = process.env.NITRO_PRESET;
+const CONFIGURED_NITRO_PRESET =
+  process.env.NITRO_PRESET?.trim() || (isNonProduction ? 'node-server' : undefined);
 const NITRO_PRESET = resolveNitroPreset(CONFIGURED_NITRO_PRESET);
 const PUBLIC_APP_URL = resolvePublicAppUrl(process.env);
 const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production';

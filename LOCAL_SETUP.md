@@ -1,13 +1,16 @@
 # Local setup without accounts
 
 This setup runs TarkovTracker in guest mode. Progress stays in the browser's local storage; the
-placeholder Supabase values do not connect to a project and cannot provide login, sync, realtime,
-or team features.
+empty Supabase values enable offline mode, so login, sync, realtime, and team features are
+unavailable.
 
 ## Requirements
 
 - Node.js 24.19.0 or newer
-- Internet access on the first load for packages and game data from `json.tarkov.dev`
+- Corepack
+- Network access for game data from `json.tarkov.dev` and map assets from `assets.tarkov.dev`
+
+Map assets are not mirrored locally.
 
 ## Start the app
 
@@ -17,19 +20,26 @@ From a fresh clone:
 corepack enable
 cp .env.example.local .env
 pnpm install
-pnpm dev --host 0.0.0.0
+pnpm run dev
 ```
 
-Open <http://localhost:3000/tasks?view=maps> on the development host. From another device on the
-same LAN, replace `localhost` with the host's LAN IP address.
+Open <http://localhost:3000/tasks?view=maps>. To make the server available to another device on the
+same LAN, start it with the extra host argument:
 
-The map view selects the first available map after game data loads. The map panel should contain
-an SVG-backed Leaflet map and objective markers. No login is required.
+```bash
+pnpm run dev -- --host 0.0.0.0
+```
+
+Then replace `localhost` with the development host's LAN IP address.
+
+After game data loads, select a specific map such as **Ground Zero**. The map panel should contain
+an SVG-backed Leaflet map and objective markers. The default **All** filter does not display a map.
+No login is required.
 
 ## Verify local progress
 
 Mark a task or task objective complete, refresh the page, and confirm that the change remains.
 Guest progress is stored only in that browser. Clearing site data removes it.
 
-The Supabase values in `.env.example.local` are deliberately non-working placeholders. Replace
-them with real project values only when testing account, sync, realtime, or team features.
+Keep both Supabase values empty for guest mode. A partial credential pair is invalid; set both to
+real project values only when testing account, sync, realtime, or team features.

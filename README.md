@@ -73,6 +73,9 @@ names are used by Nuxt, Cloudflare Pages/Workers, and Supabase Edge Functions, s
 not need to be duplicated under `NUXT_PUBLIC_*`. Without Supabase configured, the app runs in
 offline mode with localStorage only — auth, sync, realtime, and team features are unavailable.
 
+For a no-account LAN/localStorage run, copy [`.env.example.local`](.env.example.local) to `.env`
+and follow [`LOCAL_SETUP.md`](LOCAL_SETUP.md).
+
 > `SUPABASE_URL` and `SUPABASE_ANON_KEY` are required for login/sync. Everything else is optional and
 > documented in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
