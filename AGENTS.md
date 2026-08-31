@@ -122,7 +122,7 @@ When asked to "review for production readiness", "deep review", "is this safe to
 - **Keep secrets out of the repo.** Use `useRuntimeConfig()` for env-driven values.
 - **No destructive git commands** (`git restore`, `git checkout --`, `git reset`, `git clean`, force-push) without explicit user approval in the current conversation.
 - **No runtime dependency additions** without explaining why existing deps are insufficient.
-- **This fork hydrates tasks/progress from static exporter JSON** (`tasks.<mode>.json`, `state.<mode>.json`, `scores.<mode>.json`) served from `public/quest-data/` or `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`. Do not call `/api/tarkov/*`, Supabase, or tarkovtracker APIs on that path. Availability is never inferred; map markers join `state.<mode>.json` quest ids onto `tasks.<mode>.json` geometry. Do not add usage of the `api.tarkov.dev` GraphQL API. Task objectives and prestige conditions are discriminated by the upstream `type` field; the synthetic `__typename` discriminator was removed — do not reintroduce it.
+- **This fork hydrates tasks/progress from static exporter JSON** (`tasks.<mode>.json`, `state.<mode>.json`, `scores.<mode>.json`) served from `public/quest-data/` or `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`. Public runtime scalars are `staticQuestMode` and `staticQuestDataBaseUrl` (`NUXT_PUBLIC_STATIC_QUEST_MODE`, `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`). Do not introduce `NUXT_PUBLIC_STATIC_QUEST_DATA`; Nuxt would overwrite a nested object. Do not call `/api/tarkov/*`, Supabase, or tarkovtracker APIs on that path. Availability is never inferred; map markers join `state.<mode>.json` quest ids onto `tasks.<mode>.json` geometry. Seasonal uses exporter `pvp` files because issue #2 only emits pvp (pvp-season dump) and reserves pve. Do not add usage of the `api.tarkov.dev` GraphQL API. Task objectives and prestige conditions are discriminated by the upstream `type` field; the synthetic `__typename` discriminator was removed — do not reintroduce it.
 - **Do not add new runtime dependencies on Tarkov task `alternatives`.** Upstream removed the field; branch relationships must be compiled from task-status failure conditions. Existing uses remain until the shared progress engine replaces them.
 - **Revoke function EXECUTE from `PUBLIC, anon, authenticated`, never `PUBLIC` alone.** Supabase
   ships `ALTER DEFAULT PRIVILEGES` on schema `public` that grants `EXECUTE` on every new function to
@@ -330,7 +330,7 @@ Naming:
   and `SUPABASE_ANON_KEY` across Nuxt, Pages, Workers, and Edge Functions; do not duplicate them
   as `NUXT_PUBLIC_SUPABASE_*` values.
 - Use `NUXT_PUBLIC_*` for browser-exposed Nuxt-only runtime config.
-- Static exporter files use `NUXT_PUBLIC_STATIC_QUEST_DATA` and
+- Static exporter files use `NUXT_PUBLIC_STATIC_QUEST_MODE` and
   `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` (default `/quest-data`).
 - Use `NUXT_*` for private Nuxt runtime config (server-only).
 - Browser log forwarding is opt-in: keep `NUXT_PUBLIC_CLIENT_LOG_SINK_URL` empty unless the sink is

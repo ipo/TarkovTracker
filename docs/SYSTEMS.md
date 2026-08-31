@@ -1090,7 +1090,8 @@ Page load
 `tasks.<mode>.json`, `state.<mode>.json`, and `scores.<mode>.json`. The adapter fetches those files
 from `public/quest-data/` or `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`, shapes them into metadata and
 progress store state, and stubs Supabase auth, team sync, and tarkov.dev profile import. Quest
-availability is never inferred from prerequisites.
+availability is never inferred from prerequisites. Public runtime config uses two scalars:
+`staticQuestMode` and `staticQuestDataBaseUrl`.
 
 ```mermaid
 flowchart LR
@@ -1104,8 +1105,9 @@ flowchart LR
 ### Flow
 
 1. `useMetadataStore.initialize` / `fetchAllData` / mode switch calls `hydrateFromStaticQuestData`.
-2. The adapter loads the three files for the current mode (`pvp` and `seasonal` share `*.pvp.json`;
-   `pve` loads `*.pve.json`).
+2. The adapter loads the three files for the exporter mode. Issue #2 only emits `pvp` (from the
+   pvp-season dump) and reserves `pve`. App PvP and Seasonal both consume `*.pvp.json` because
+   Seasonal is the pvp-season progress lane, not a third exporter mode. App PvE loads `*.pve.json`.
 3. Task geometry (including zone `outline` / `position` / `terrainElevation`) is copied from
    `tasks.<mode>.json`. Zone `map` is reshaped to `{ id: map_id }` so existing marker code can join
    on canonical map ids.

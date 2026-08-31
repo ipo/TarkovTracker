@@ -9,7 +9,8 @@ const runtimeConfig = {
   public: {
     supabaseAnonKey: 'test-anon-key',
     supabaseUrl: 'https://test.supabase.co',
-    staticQuestData: { enabled: false, baseUrl: '/quest-data' },
+    staticQuestDataBaseUrl: '/quest-data',
+    staticQuestMode: false,
   },
 };
 const { loggerMock, mockCreateClient, offlineFallbackMock } = vi.hoisted(() => ({
@@ -115,7 +116,8 @@ describe('supabase plugin', () => {
     offlineFallbackMock.mockReturnValue(true);
     runtimeConfig.public.supabaseAnonKey = 'test-anon-key';
     runtimeConfig.public.supabaseUrl = 'https://test.supabase.co';
-    runtimeConfig.public.staticQuestData = { enabled: false, baseUrl: '/quest-data' };
+    runtimeConfig.public.staticQuestDataBaseUrl = '/quest-data';
+    runtimeConfig.public.staticQuestMode = false;
     localStorage.setItem('sb-test-auth-token', 'token');
     localStorage.setItem(STORAGE_KEYS.progress, 'progress-state');
     localStorage.setItem(STORAGE_KEYS.preferences, 'preferences-state');
@@ -398,7 +400,8 @@ describe('supabase plugin', () => {
   it('provides an offline stub when static quest hydration is enabled even with supabase config', async () => {
     runtimeConfig.public.supabaseUrl = 'https://test.supabase.co';
     runtimeConfig.public.supabaseAnonKey = 'test-anon-key';
-    runtimeConfig.public.staticQuestData = { enabled: true, baseUrl: '/quest-data' };
+    runtimeConfig.public.staticQuestDataBaseUrl = '/quest-data';
+    runtimeConfig.public.staticQuestMode = true;
     const plugin = (await import('@/plugins/supabase.client')).default;
     const result = (await plugin.setup?.({} as Parameters<NonNullable<typeof plugin.setup>>[0])) as
       SupabasePluginProvide | undefined;

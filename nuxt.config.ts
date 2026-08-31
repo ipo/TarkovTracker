@@ -36,7 +36,7 @@ const testsDir = resolve(__dirname, 'tests');
 const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
 const appVersion = packageJson.version ?? 'dev';
 const clientLogSinkUrl = resolveClientLogSinkUrl(process.env);
-const STATIC_QUEST_DATA = resolveStaticQuestDataRuntimeConfig(process.env);
+const STATIC_QUEST = resolveStaticQuestDataRuntimeConfig(process.env);
 const isNonProduction = process.env.NODE_ENV !== 'production';
 const CONFIGURED_NITRO_PRESET = process.env.NITRO_PRESET;
 const NITRO_PRESET = resolveNitroPreset(CONFIGURED_NITRO_PRESET);
@@ -94,7 +94,7 @@ const cspRouteRules = buildContentSecurityPolicyRouteRules({
   clientLogSinkUrl,
   clarityInstrumentationKey: IS_PRODUCTION_BUILD ? MICROSOFT_CLARITY_PROJECT_ID : '',
   gaMeasurementId: IS_PRODUCTION_BUILD ? GOOGLE_ANALYTICS_MEASUREMENT_ID : '',
-  staticQuestDataBaseUrl: STATIC_QUEST_DATA.baseUrl,
+  staticQuestDataBaseUrl: STATIC_QUEST.staticQuestDataBaseUrl,
   supabaseUrl: PUBLIC_SUPABASE_URL,
   turnstileSiteKey: TURNSTILE_SITE_KEY,
 });
@@ -216,7 +216,8 @@ export default defineNuxtConfig({
         displayName: process.env.NUXT_PUBLIC_PROMOTED_TWITCH_DISPLAY_NAME || 'honeyxxo',
         enabled: process.env.NUXT_PUBLIC_PROMOTED_TWITCH_ENABLED === 'true',
       },
-      staticQuestData: STATIC_QUEST_DATA,
+      staticQuestDataBaseUrl: STATIC_QUEST.staticQuestDataBaseUrl,
+      staticQuestMode: STATIC_QUEST.staticQuestMode,
     },
   },
   devtools: {

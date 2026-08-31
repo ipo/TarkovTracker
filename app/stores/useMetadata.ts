@@ -102,7 +102,7 @@ const hasRenderableCriticalMetadata = (
   state: Pick<MetadataState, 'hideoutStations' | 'tasks'>
 ): boolean => {
   if (isStaticQuestDataEnabled()) {
-    return true;
+    return state.tasks.length > 0;
   }
   return state.tasks.length > 0 && state.hideoutStations.length > 0;
 };
@@ -985,6 +985,10 @@ export const useMetadataStore = defineStore('metadata', {
     // Fallow cannot follow this method through the typed composable boundary.
     // fallow-ignore-next-line unused-store-member -- accessed through typed composable boundary
     async fetchMapSpawnsData(forceRefresh = false) {
+      if (isStaticQuestDataEnabled()) {
+        this.mapSpawnsLoaded = true;
+        return;
+      }
       if (this.mapSpawnsLoaded && !forceRefresh) return;
       const requestLanguage = this.languageCode;
       const requestGameMode = this.getApiGameMode();

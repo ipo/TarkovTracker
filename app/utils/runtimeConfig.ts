@@ -113,10 +113,11 @@ export const normalizeStaticQuestDataBaseUrl = (value: string): string => {
 export const resolveStaticQuestDataRuntimeConfig = (
   env: NodeJS.ProcessEnv,
   nodeEnv: string = env.NODE_ENV || 'production'
-): { enabled: boolean; baseUrl: string } => {
-  const configured = env.NUXT_PUBLIC_STATIC_QUEST_DATA?.trim();
-  const enabled = configured ? configured === 'true' : nodeEnv !== 'test';
-  const baseUrl =
-    env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || DEFAULT_STATIC_QUEST_DATA_BASE_URL;
-  return { enabled, baseUrl: normalizeStaticQuestDataBaseUrl(baseUrl) };
+): { staticQuestDataBaseUrl: string; staticQuestMode: boolean } => {
+  const configured = env.NUXT_PUBLIC_STATIC_QUEST_MODE?.trim();
+  const staticQuestMode = configured ? configured === 'true' : nodeEnv !== 'test';
+  const staticQuestDataBaseUrl = normalizeStaticQuestDataBaseUrl(
+    env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || DEFAULT_STATIC_QUEST_DATA_BASE_URL
+  );
+  return { staticQuestDataBaseUrl, staticQuestMode };
 };

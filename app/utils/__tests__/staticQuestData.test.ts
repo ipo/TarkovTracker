@@ -36,6 +36,7 @@ describe('static quest data adapter', () => {
       'http://192.168.1.10:8080/state.pve.json'
     );
     expect(normalizeStaticQuestDataBaseUrl('served')).toBe('/served');
+    expect(normalizeStaticQuestDataBaseUrl('javascript:alert(1)')).toBe('/javascript:alert(1)');
   });
   it('maps seasonal and pvp game modes onto pvp files', () => {
     expect(resolveStaticQuestFileMode(GAME_MODES.PVP)).toBe('pvp');
@@ -43,14 +44,15 @@ describe('static quest data adapter', () => {
     expect(resolveStaticQuestFileMode(GAME_MODES.PVE)).toBe('pve');
   });
   it('enables static hydration outside tests unless explicitly disabled', () => {
-    expect(resolveStaticQuestDataRuntimeConfig({}, 'development').enabled).toBe(true);
-    expect(resolveStaticQuestDataRuntimeConfig({}, 'test').enabled).toBe(false);
+    expect(resolveStaticQuestDataRuntimeConfig({}, 'development').staticQuestMode).toBe(true);
+    expect(resolveStaticQuestDataRuntimeConfig({}, 'test').staticQuestMode).toBe(false);
     expect(
-      resolveStaticQuestDataRuntimeConfig({ NUXT_PUBLIC_STATIC_QUEST_DATA: 'false' }, 'development')
-        .enabled
+      resolveStaticQuestDataRuntimeConfig({ NUXT_PUBLIC_STATIC_QUEST_MODE: 'false' }, 'development')
+        .staticQuestMode
     ).toBe(false);
     expect(
-      resolveStaticQuestDataRuntimeConfig({ NUXT_PUBLIC_STATIC_QUEST_DATA: 'true' }, 'test').enabled
+      resolveStaticQuestDataRuntimeConfig({ NUXT_PUBLIC_STATIC_QUEST_MODE: 'true' }, 'test')
+        .staticQuestMode
     ).toBe(true);
   });
   it('shapes exporter zones and confirmed-only progress', () => {
@@ -114,6 +116,70 @@ describe('static quest data adapter', () => {
     await expect(
       fetchStaticQuestBundle('pvp', { enabled: true, baseUrl: '/quest-data' })
     ).rejects.toThrow(/non-confirmed status/);
+  });
+  it('uses exporter pvp files for Seasonal because issue #2 only emits pvp and reserves pve', async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      const file = url.split('/').at(-1);
+      if (!file) throw new Error(url);
+      return loadFixture(file.replace('seasonal', 'pvp'));
+    });
+    vi.stubGlobal('$fetch', fetchMock);
+    const bundle = await fetchStaticQuestBundle(GAME_MODES.SEASONAL, {
+      enabled: true,
+      baseUrl: '/quest-data',
+    });
+    expect(fetchMock.mock.calls.map((call) => call[0])).toEqual([
+      '/quest-data/tasks.pvp.json',
+      '/quest-data/state.pvp.json',
+      '/quest-data/scores.pvp.json',
+    ]);
+    expect(bundle.tasks.mode).toBe('pvp');
+    expect(bundle.state.mode).toBe('pvp');
+  });
+  it('rejects malformed schema versions and mixed document modes', async () => {
+    const bundle = loadBundle('pvp');
+    vi.stubGlobal(
+      '$fetch',
+      vi.fn(async (url: string) => {
+        if (url.endsWith('tasks.pvp.json')) {
+          return { ...bundle.tasks, schema_version: 2 };
+        }
+        if (url.endsWith('state.pvp.json')) return bundle.state;
+        return bundle.scores;
+      })
+    );
+    await expect(
+      fetchStaticQuestBundle('pvp', { enabled: true, baseUrl: '/quest-data' })
+    ).rejects.toThrow(/unsupported schema_version/);
+    vi.stubGlobal(
+      '$fetch',
+      vi.fn(async (url: string) => {
+        if (url.endsWith('state.pvp.json')) {
+          return { ...bundle.state, mode: 'pve' };
+        }
+        if (url.endsWith('tasks.pvp.json')) return bundle.tasks;
+        return bundle.scores;
+      })
+    );
+    await expect(
+      fetchStaticQuestBundle('pvp', { enabled: true, baseUrl: '/quest-data' })
+    ).rejects.toThrow(/does not match pvp/);
+  });
+  it('rejects a failed fetch before adapting', async () => {
+    vi.stubGlobal(
+      '$fetch',
+      vi.fn(async (url: string) => {
+        if (url.endsWith('state.pvp.json')) {
+          throw new Error('network down');
+        }
+        const file = url.split('/').at(-1);
+        if (!file) throw new Error(url);
+        return loadFixture(file);
+      })
+    );
+    await expect(
+      fetchStaticQuestBundle('pvp', { enabled: true, baseUrl: '/quest-data' })
+    ).rejects.toThrow(/network down/);
   });
   it('tracks hydration generations so stale work can be ignored', () => {
     const first = beginStaticQuestHydration();

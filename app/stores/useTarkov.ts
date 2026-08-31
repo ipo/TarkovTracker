@@ -298,7 +298,20 @@ const tarkovActions = {
     return removedModules.length;
   },
   async switchGameMode(this: TarkovStoreInstance, mode: GameMode) {
+    const previousMode = this.currentGameMode;
     actions.switchGameMode.call(this, mode);
+    if (isStaticQuestDataEnabled()) {
+      const metadataStore = useMetadataStore();
+      try {
+        metadataStore.updateLanguageAndGameMode(undefined, mode);
+        await metadataStore.hydrateFromStaticQuestData();
+        return;
+      } catch (error) {
+        actions.switchGameMode.call(this, previousMode);
+        metadataStore.updateLanguageAndGameMode(undefined, previousMode);
+        throw error;
+      }
+    }
     await syncProgressIfLoggedIn(this, 'Error syncing gamemode to backend:');
   },
   async migrateDataIfNeeded(this: TarkovStoreInstance) {

@@ -68,6 +68,7 @@
   import { logger } from '@/utils/logger';
   const metadataStore = useMetadataStore();
   const tarkovStore = useTarkovStore();
+  const runtimeConfig = useRuntimeConfig();
   const { t } = useI18n({ useScope: 'global' });
   const switchModeError = ref('');
   const seasonCountdownNow = ref(Date.now());
@@ -143,6 +144,10 @@
           'Failed to switch game mode, please retry'
         );
         logger.error('[DrawerGameSettings] Error switching mode:', err);
+        metadataStore.setLoading(false);
+        return;
+      }
+      if (runtimeConfig.public.staticQuestMode === true) {
         metadataStore.setLoading(false);
         return;
       }

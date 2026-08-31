@@ -209,23 +209,29 @@ describe('shouldEnableAnalyticsIntegrations', () => {
 describe('resolveStaticQuestDataRuntimeConfig', () => {
   it('defaults to enabled outside tests and /quest-data', () => {
     expect(resolveStaticQuestDataRuntimeConfig({}, 'development')).toEqual({
-      enabled: true,
-      baseUrl: '/quest-data',
+      staticQuestDataBaseUrl: '/quest-data',
+      staticQuestMode: true,
     });
-    expect(resolveStaticQuestDataRuntimeConfig({}, 'test').enabled).toBe(false);
+    expect(resolveStaticQuestDataRuntimeConfig({}, 'test').staticQuestMode).toBe(false);
   });
-  it('honors explicit public env overrides', () => {
+  it('honors explicit public env overrides without an object key', () => {
     expect(
       resolveStaticQuestDataRuntimeConfig(
         {
-          NUXT_PUBLIC_STATIC_QUEST_DATA: 'true',
+          NUXT_PUBLIC_STATIC_QUEST_MODE: 'true',
           NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL: 'http://192.168.0.5:9000/',
         },
         'test'
       )
     ).toEqual({
-      enabled: true,
-      baseUrl: 'http://192.168.0.5:9000',
+      staticQuestDataBaseUrl: 'http://192.168.0.5:9000',
+      staticQuestMode: true,
     });
+  });
+  it('does not treat NUXT_PUBLIC_STATIC_QUEST_DATA as the mode flag', () => {
+    expect(
+      resolveStaticQuestDataRuntimeConfig({ NUXT_PUBLIC_STATIC_QUEST_DATA: 'true' }, 'test')
+        .staticQuestMode
+    ).toBe(false);
   });
 });

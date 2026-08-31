@@ -57,6 +57,8 @@ const readString = (value: unknown, fallback = ''): string =>
   typeof value === 'string' ? value : fallback;
 const asBoolean = (value: unknown): boolean | undefined =>
   typeof value === 'boolean' ? value : undefined;
+// Issue #2 exporter emits pvp now and reserves pve. App Seasonal is the pvp-season
+// progress lane, so it reads tasks|state|scores.pvp.json rather than a seasonal file.
 export const resolveStaticQuestFileMode = (gameMode: string): StaticQuestFileMode =>
   gameMode === GAME_MODES.PVE ? 'pve' : 'pvp';
 export const buildStaticQuestFileUrl = (
@@ -72,13 +74,15 @@ export const buildStaticQuestFileUrl = (
 };
 export const getStaticQuestDataConfig = (): StaticQuestDataConfig => {
   const publicConfig = useRuntimeConfig().public as {
-    staticQuestData?: Partial<StaticQuestDataConfig>;
+    staticQuestDataBaseUrl?: string;
+    staticQuestMode?: boolean;
   };
-  const enabled = publicConfig.staticQuestData?.enabled === true;
-  const baseUrl = normalizeStaticQuestDataBaseUrl(
-    publicConfig.staticQuestData?.baseUrl || DEFAULT_STATIC_QUEST_DATA_BASE_URL
-  );
-  return { enabled, baseUrl };
+  return {
+    enabled: publicConfig.staticQuestMode === true,
+    baseUrl: normalizeStaticQuestDataBaseUrl(
+      publicConfig.staticQuestDataBaseUrl || DEFAULT_STATIC_QUEST_DATA_BASE_URL
+    ),
+  };
 };
 export const isStaticQuestDataEnabled = (): boolean => {
   try {

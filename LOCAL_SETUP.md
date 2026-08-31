@@ -68,7 +68,7 @@ variables referenced by `nuxt.config.ts` and `app/utils/runtimeConfig.ts`:
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
-- `NUXT_PUBLIC_STATIC_QUEST_DATA`
+- `NUXT_PUBLIC_STATIC_QUEST_MODE`
 - `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`
 
 Copy it to `.env` (gitignored). Leave both values empty. `resolveSupabaseRuntimeConfig()`

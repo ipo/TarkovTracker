@@ -107,6 +107,53 @@ describe('static quest hydration', () => {
     });
     expect(mapObjectiveMarks.value.map((mark) => mark.id)).toEqual(['obj-active']);
   });
+  it('leaves stores empty when a static document fetch fails', async () => {
+    vi.stubGlobal(
+      '$fetch',
+      vi.fn(async (url: string) => {
+        if (String(url).endsWith('state.pvp.json')) {
+          throw new Error('state missing');
+        }
+        return loadFixture(String(url).split('/').at(-1) || '');
+      })
+    );
+    const { useMetadataStore } = await import('@/stores/useMetadata');
+    const metadataStore = useMetadataStore();
+    await expect(metadataStore.fetchAllData(true)).rejects.toThrow(/state missing/);
+    expect(metadataStore.tasks).toEqual([]);
+    expect(metadataStore.confirmedUnlockedTaskIds).toEqual([]);
+    expect(metadataStore.initialized).toBe(false);
+  });
+  it('rolls the selected mode back when static hydration fails', async () => {
+    vi.stubGlobal(
+      '$fetch',
+      vi.fn(async (url: string) => {
+        const file = String(url).split('/').at(-1) || '';
+        if (file.includes('.pve.json')) {
+          throw new Error('pve unavailable');
+        }
+        return loadFixture(file);
+      })
+    );
+    const { useMetadataStore } = await import('@/stores/useMetadata');
+    const { useTarkovStore } = await import('@/stores/useTarkov');
+    const metadataStore = useMetadataStore();
+    const tarkovStore = useTarkovStore();
+    await metadataStore.fetchAllData(true);
+    expect(tarkovStore.getCurrentGameMode()).toBe(GAME_MODES.PVP);
+    await expect(tarkovStore.switchGameMode(GAME_MODES.PVE)).rejects.toThrow(/pve unavailable/);
+    expect(tarkovStore.getCurrentGameMode()).toBe(GAME_MODES.PVP);
+  });
+  it('exposes scalar public runtime config keys instead of an object', () => {
+    const publicConfig = useRuntimeConfig().public as {
+      staticQuestData?: unknown;
+      staticQuestDataBaseUrl?: string;
+      staticQuestMode?: boolean;
+    };
+    expect(typeof publicConfig.staticQuestMode).toBe('boolean');
+    expect(typeof publicConfig.staticQuestDataBaseUrl).toBe('string');
+    expect(publicConfig.staticQuestData).toBeUndefined();
+  });
   it('does not call supabase or tarkovtracker APIs while hydrating', async () => {
     const fetchMock = createFetchMock();
     vi.stubGlobal('$fetch', fetchMock);
