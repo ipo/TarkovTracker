@@ -450,7 +450,7 @@ export default defineNuxtConfig({
   },
   hooks: {
     'nitro:init': (nitro) => {
-      if (!String(nitro.options.preset || '').includes('cloudflare')) {
+      if (!IS_BUILD_COMMAND || !String(nitro.options.preset || '').includes('cloudflare')) {
         return;
       }
       nitro.hooks.hook('compiled', () => {
