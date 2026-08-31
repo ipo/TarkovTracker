@@ -65,6 +65,7 @@ import {
   performReset,
   resolveInitialSyncState,
 } from '@/stores/tarkov/resetEngine';
+import { hydrateStaticQuestStores } from '@/stores/tarkov/staticQuestStoreBridge';
 import { recordLocalSyncTime, resetSyncTimeline } from '@/stores/tarkov/syncTimeline';
 import { useMetadataStore } from '@/stores/useMetadata';
 import { delay } from '@/utils/async';
@@ -297,7 +298,14 @@ const tarkovActions = {
     return removedModules.length;
   },
   async switchGameMode(this: TarkovStoreInstance, mode: GameMode) {
+    const previousMode = this.currentGameMode;
     actions.switchGameMode.call(this, mode);
+    try {
+      if (await hydrateStaticQuestStores(mode)) return;
+    } catch (error) {
+      actions.switchGameMode.call(this, previousMode);
+      throw error;
+    }
     await syncProgressIfLoggedIn(this, 'Error syncing gamemode to backend:');
   },
   async migrateDataIfNeeded(this: TarkovStoreInstance) {

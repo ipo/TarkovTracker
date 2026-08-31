@@ -1,0 +1,31 @@
+{
+  "mode": "pvp",
+  "schema_version": 1,
+  "tasks": {
+    "fixture-pvp-task": {
+      "id": "fixture-pvp-task",
+      "english_name": "Static PvP quest",
+      "trader": { "id": "fixture-trader", "english_name": "Static trader" },
+      "map_ids": ["woods"],
+      "required_keys": [],
+      "objectives": [
+        {
+          "id": "fixture-pvp-objective",
+          "english_description": "Visit the marked Woods location",
+          "type": "visit",
+          "optional": false,
+          "map_ids": ["woods"],
+          "required_items": [],
+          "zones": [
+            {
+              "id": "fixture-pvp-zone",
+              "map": "woods",
+              "map_id": "woods",
+              "position": { "x": 75, "y": 0, "z": -120 }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

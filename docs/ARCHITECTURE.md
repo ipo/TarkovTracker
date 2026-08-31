@@ -9,7 +9,9 @@ Quoting: quote in TOML, unquoted in .env/.dev.vars unless dotenv requires it.
 
 ## Overview
 
-TarkovTracker is a sophisticated single-page application (SPA) for tracking progress in Escape from Tarkov. Built with Nuxt 4, Vue 3, and Supabase, it provides real-time multi-device synchronization, team collaboration, and comprehensive task/hideout tracking.
+This fork runs TarkovTracker as a Nuxt 4 single-page static quest viewer. Its active client path
+hydrates task metadata and confirmed progress from exporter JSON; Supabase and the original server
+data paths remain in the repository but are stubbed or bypassed at runtime.
 
 ## Technology Stack
 
@@ -130,6 +132,22 @@ graph TB
 ```
 
 ## State Management
+
+### Active static hydration path
+
+`app/utils/staticQuestHydration.ts` loads `tasks|state|scores.<mode>.json` from the public runtime
+base URL. It adapts exporter names, canonical zone map ids, geometry, items, keys, traders, and maps
+into the existing Pinia shapes. It replaces only task and objective progress for the selected mode;
+other local fields remain in localStorage. `state.<mode>.json` alone determines confirmed quests,
+and map markers explicitly reject catalog-only tasks even if the legacy availability engine would
+infer them as available. A generation fence prevents a late response for an earlier mode from
+overwriting a newer selection.
+
+An absolute configured base contributes only its origin to the production `connect-src` CSP so a
+LAN host works without widening other directives.
+
+Supabase setup returns the existing offline stub before creating a client. Consequently auth,
+progress sync, team sync, and realtime paths make no requests in this runtime.
 
 ### Three-Store Pattern + Facade
 
@@ -490,12 +508,13 @@ Placement is enabled for both environments through the top-level `[placement]` b
 | `SUPABASE_URL`                                   | Shared Supabase project URL for auth and sync            | Yes¹     |
 | `SUPABASE_ANON_KEY`                              | Shared Supabase anon key for auth and sync               | Yes¹     |
 | `NUXT_PUBLIC_CLIENT_LOG_SINK_URL`                | Optional browser log collector URL (disabled by default) | No       |
+| `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`         | Exporter JSON base; defaults to `/quest-data`            | No       |
 | `NUXT_PUBLIC_TURNSTILE_SITE_KEY`                 | Turnstile widget sitekey for Tarkov.dev profile imports  | No²      |
 | `NUXT_PUBLIC_TARKOV_DEV_IMPORT_COOLDOWN_MINUTES` | Browser cooldown after a confirmed profile import        | No       |
 
-> **¹ Required in production.** These shared names are consumed by Nuxt, Pages, Workers, and Edge
-> Functions. Without Supabase configuration, auth, sync, realtime, and team features are unavailable;
-> the app runs in offline mode with localStorage only.
+> **¹ Retained deployment configuration.** Static quest mode always stubs browser Supabase auth,
+> sync, realtime, and team paths even when these values are present. Server and Worker code retained
+> in the repository may still consume the shared values outside the viewer path.
 >
 > **² Turnstile is optional, but its public sitekey and private secret must be configured together.
 > Local development uses Cloudflare's always-pass test keys automatically.**

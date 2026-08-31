@@ -1,0 +1,31 @@
+{
+  "mode": "seasonal",
+  "schema_version": 1,
+  "tasks": {
+    "fixture-seasonal-task": {
+      "id": "fixture-seasonal-task",
+      "english_name": "Static Seasonal quest",
+      "trader": { "id": "fixture-trader", "english_name": "Static trader" },
+      "map_ids": ["ground-zero"],
+      "required_keys": [],
+      "objectives": [
+        {
+          "id": "fixture-seasonal-objective",
+          "english_description": "Visit the marked Ground Zero location",
+          "type": "visit",
+          "optional": false,
+          "map_ids": ["ground-zero"],
+          "required_items": [],
+          "zones": [
+            {
+              "id": "fixture-seasonal-zone",
+              "map": "ground-zero",
+              "map_id": "ground-zero",
+              "position": { "x": 1, "y": 0, "z": 2 }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

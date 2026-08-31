@@ -43,6 +43,9 @@ export function useMapObjectiveMarks({
     const teammateIds = includeTeammates
       ? Object.keys(progressStore.visibleTeamStores).filter((id) => id !== 'self')
       : [];
+    const confirmedTaskIds = new Set(
+      Object.keys(tarkovStore.getCurrentProgressData().taskCompletions ?? {})
+    );
     const pinnedTaskIds = new Set(preferencesStore.getPinnedTaskIds);
     tasks.value.forEach((task) => {
       if (!task.objectives) return;
@@ -52,9 +55,8 @@ export function useMapObjectiveMarks({
         const selfComplete = tarkovStore.isTaskObjectiveComplete(obj.id);
         const selfTaskComplete = tarkovStore.isTaskComplete(task.id);
         const selfTaskFailed = tarkovStore.isTaskFailed(task.id);
-        const selfTaskUnlocked = unlockedTasks.value[task.id]?.self === true;
         const selfNeedsObjective =
-          selfTaskUnlocked && !selfTaskComplete && !selfTaskFailed && !selfComplete;
+          confirmedTaskIds.has(task.id) && !selfTaskComplete && !selfTaskFailed && !selfComplete;
         const users: string[] = [];
         const teammateUsers: string[] = [];
         if (selfNeedsObjective) {

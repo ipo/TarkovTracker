@@ -50,7 +50,10 @@ can read it and an agent can verify any claim against the code. Each system sect
 
 - **Stack:** Nuxt 4 SPA (`ssr: false`), Vue 3 Composition API, TypeScript strict, Pinia, Supabase, Tailwind CSS v4, Vitest, Cloudflare Pages/Workers.
 - **Runtime:** Node >=24.19.0, packageManager `pnpm@11.14.0` (engines allow `pnpm >=10.34.5 <12`).
-- **Backend:** Supabase (auth, database, realtime). API proxy via Nitro server routes.
+- **Static viewer runtime:** task metadata and confirmed progress load from
+  `tasks|state|scores.<mode>.json`; Supabase auth/sync/team realtime are disabled.
+- **Retained backend:** Supabase and Nitro routes remain in the repository for later cleanup, but
+  the static viewer boot path does not call them.
 - **Deployment:** Cloudflare Pages/Workers for the frontend and `api-gateway`; the Supabase GitHub
   integration applies DB migrations and deploys Edge Functions. All three run automatically on merge
   to `main` — see the Deployment section of `docs/runbook.md`. The Pages build emits a static SPA
@@ -70,6 +73,8 @@ can read it and an agent can verify any claim against the code. Each system sect
 - `scripts/precompute/` — standalone precompute of heavy tasks-core payloads into the `TARKOV_DATA` KV namespace, run by the scheduled GitHub Actions workflow `.github/workflows/precompute-tarkov-data.yml` (the account's Workers Free tier CPU limit rules out a scheduled Worker). Reuses the `app/server/utils` pipeline via tsx tsconfig paths; request handlers read the entries via `edgeCache`'s `precomputed` option and fall back to the per-colo Cache API when the binding or entry is absent.
 - `docs/` — Project documentation.
 - `public/` — Static assets.
+- `public/quest-data/` — small schema-v1 static viewer fixtures; deployments may point
+  `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` at a LAN-hosted exporter directory instead.
 - Config: `nuxt.config.ts`, `app.config.ts`, `eslint.config.mjs`, `.prettierrc`, `commitlint.config.js`.
 
 ## Commands
@@ -122,7 +127,9 @@ When asked to "review for production readiness", "deep review", "is this safe to
 - **Keep secrets out of the repo.** Use `useRuntimeConfig()` for env-driven values.
 - **No destructive git commands** (`git restore`, `git checkout --`, `git reset`, `git clean`, force-push) without explicit user approval in the current conversation.
 - **No runtime dependency additions** without explaining why existing deps are insufficient.
-- **Game data comes from `json.tarkov.dev` via the `/api/tarkov/*` server proxy.** Do not add usage of the `api.tarkov.dev` GraphQL API. Task objectives and prestige conditions are discriminated by the upstream `type` field; the synthetic `__typename` discriminator was removed — do not reintroduce it.
+- **Static viewer task data comes from exporter JSON.** The active client boot path must not call
+  `/api/tarkov/*`, Supabase, or TarkovTracker progress APIs. Retained non-viewer server code gets
+  game data from `json.tarkov.dev` via `/api/tarkov/*`; do not add the deprecated GraphQL API.
 - **Do not add new runtime dependencies on Tarkov task `alternatives`.** Upstream removed the field; branch relationships must be compiled from task-status failure conditions. Existing uses remain until the shared progress engine replaces them.
 - **Revoke function EXECUTE from `PUBLIC, anon, authenticated`, never `PUBLIC` alone.** Supabase
   ships `ALTER DEFAULT PRIVILEGES` on schema `public` that grants `EXECUTE` on every new function to
@@ -197,6 +204,11 @@ Naming:
 
 ## State, Data, and APIs
 
+- Static quest hydration loads all three schema-v1 documents for the selected mode from
+  `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` (default `/quest-data`). `state.<mode>.json` is the sole
+  authority for which quests are confirmed; map markers must never infer additional available
+  quests from the task catalog. A mode switch atomically replaces task metadata and that mode's
+  task/objective progress, and stale slower loads must not overwrite the latest selection.
 - Pinia stores in `app/stores/`, auto-registered by Nuxt. Use `pinia-plugin-persistedstate` where applicable.
 - Supabase client: `app/plugins/supabase.client.ts`. Regenerate types: `pnpm run supabase:types`.
 - OAuth PKCE callback: the client treats a request as an OAuth callback only on the `/auth/callback`

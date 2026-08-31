@@ -179,6 +179,10 @@ export default defineNuxtPlugin({
   name: 'supabase',
   async setup() {
     const runtimeConfig = useRuntimeConfig();
+    if (runtimeConfig.public.staticQuestMode === true) {
+      logger.info('[Supabase] Disabled for static quest mode');
+      return { provide: { supabase: buildStub() } };
+    }
     const supabaseUrl = String(runtimeConfig.public.supabaseUrl || '').trim();
     const supabaseKey = String(runtimeConfig.public.supabaseAnonKey || '').trim();
     const missingConfigMessage = '[Supabase] Missing SUPABASE_URL or SUPABASE_ANON_KEY';

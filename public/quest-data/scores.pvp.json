@@ -1,0 +1,15 @@
+{
+  "mode": "pvp",
+  "schema_version": 1,
+  "maps": [
+    {
+      "id": "woods",
+      "english_name": "Woods",
+      "score": 1,
+      "gateway": false,
+      "off_goal": false,
+      "finishable_here": true,
+      "quests": []
+    }
+  ]
+}

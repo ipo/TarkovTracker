@@ -1,0 +1,15 @@
+{
+  "mode": "seasonal",
+  "schema_version": 1,
+  "maps": [
+    {
+      "id": "ground-zero",
+      "english_name": "Ground Zero",
+      "score": 1,
+      "gateway": false,
+      "off_goal": false,
+      "finishable_here": true,
+      "quests": []
+    }
+  ]
+}

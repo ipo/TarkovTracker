@@ -1,0 +1,11 @@
+{
+  "mode": "pvp",
+  "schema_version": 1,
+  "quests": {
+    "fixture-pvp-task": {
+      "id": "fixture-pvp-task",
+      "status": "active",
+      "objectives": [{ "id": "fixture-pvp-objective", "completed": false, "pending": true }]
+    }
+  }
+}

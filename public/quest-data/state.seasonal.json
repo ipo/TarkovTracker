@@ -1,0 +1,11 @@
+{
+  "mode": "seasonal",
+  "schema_version": 1,
+  "quests": {
+    "fixture-seasonal-task": {
+      "id": "fixture-seasonal-task",
+      "status": "active",
+      "objectives": [{ "id": "fixture-seasonal-objective", "completed": false, "pending": true }]
+    }
+  }
+}

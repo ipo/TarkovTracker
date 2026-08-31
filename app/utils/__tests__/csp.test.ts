@@ -23,11 +23,13 @@ describe('nuxt.config CSP', () => {
   it('includes runtime backend origins in connect-src', () => {
     const connectSources = getConnectSrcSources({
       clientLogSinkUrl: 'https://logs.example.com/v1/collect',
+      staticQuestDataBaseUrl: 'http://192.168.1.50:8080/exports',
       supabaseUrl: 'https://db.example.com/auth/v1',
     });
     expect(connectSources).toContain('https://assets.tarkov.dev');
     expect(connectSources).toContain('https://tarkovtracker.github.io');
     expect(connectSources).toContain('https://logs.example.com');
+    expect(connectSources).toContain('http://192.168.1.50:8080');
     expect(connectSources).toContain('https://db.example.com');
     expect(connectSources).toContain('wss://db.example.com');
     expect(connectSources).not.toContain('https://logs.example.com/v1/collect');

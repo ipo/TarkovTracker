@@ -35,6 +35,8 @@ const testsDir = resolve(__dirname, 'tests');
 const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
 const appVersion = packageJson.version ?? 'dev';
 const clientLogSinkUrl = resolveClientLogSinkUrl(process.env);
+const staticQuestDataBaseUrl =
+  process.env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || '/quest-data';
 const isNonProduction = process.env.NODE_ENV !== 'production';
 const CONFIGURED_NITRO_PRESET = process.env.NITRO_PRESET;
 const NITRO_PRESET = resolveNitroPreset(CONFIGURED_NITRO_PRESET);
@@ -92,6 +94,7 @@ const cspRouteRules = buildContentSecurityPolicyRouteRules({
   clientLogSinkUrl,
   clarityInstrumentationKey: IS_PRODUCTION_BUILD ? MICROSOFT_CLARITY_PROJECT_ID : '',
   gaMeasurementId: IS_PRODUCTION_BUILD ? GOOGLE_ANALYTICS_MEASUREMENT_ID : '',
+  staticQuestDataBaseUrl,
   supabaseUrl: PUBLIC_SUPABASE_URL,
   turnstileSiteKey: TURNSTILE_SITE_KEY,
 });
@@ -199,6 +202,8 @@ export default defineNuxtConfig({
       supabaseAnonKey: PUBLIC_SUPABASE_ANON_KEY,
       supabaseUrl: PUBLIC_SUPABASE_URL,
       clientLogSinkUrl,
+      staticQuestDataBaseUrl,
+      staticQuestMode: true,
       turnstileSiteKey: TURNSTILE_SITE_KEY,
       tarkovDevImportCooldownMinutes: Number(
         process.env.NUXT_PUBLIC_TARKOV_DEV_IMPORT_COOLDOWN_MINUTES?.trim() || '60'
