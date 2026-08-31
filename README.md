@@ -68,10 +68,15 @@ pnpm install
 pnpm run dev           # http://localhost:3000
 ```
 
-Copy `.env.example` to `.env` and fill in `SUPABASE_URL` and `SUPABASE_ANON_KEY`. These shared
-names are used by Nuxt, Cloudflare Pages/Workers, and Supabase Edge Functions, so the same values do
-not need to be duplicated under `NUXT_PUBLIC_*`. Without Supabase configured, the app runs in
-offline mode with localStorage only — auth, sync, realtime, and team features are unavailable.
+For a no-account LAN/local-storage run, copy [`.env.example.local`](.env.example.local) to `.env`
+and follow [`LOCAL_SETUP.md`](LOCAL_SETUP.md). That dummy public Supabase pair boots Nuxt without a
+project.
+
+Copy `.env.example` to `.env` and fill in `SUPABASE_URL` and `SUPABASE_ANON_KEY` when you want
+login/sync. These shared names are used by Nuxt, Cloudflare Pages/Workers, and Supabase Edge
+Functions, so the same values do not need to be duplicated under `NUXT_PUBLIC_*`. Without Supabase
+configured, the app runs in offline mode with localStorage only — auth, sync, realtime, and team
+features are unavailable.
 
 > `SUPABASE_URL` and `SUPABASE_ANON_KEY` are required for login/sync. Everything else is optional and
 > documented in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
