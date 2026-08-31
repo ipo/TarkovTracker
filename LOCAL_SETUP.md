@@ -32,16 +32,17 @@ To bind the dev server on the LAN instead of localhost only:
 pnpm run dev -- --host 0.0.0.0
 ```
 
+From another device on the same LAN, replace `localhost` with the host's LAN
+IP address.
+
 ## Maps check
 
 With the dev server running, open
 [http://localhost:3000/tasks?view=maps](http://localhost:3000/tasks?view=maps)
-without signing in. After task/map data loads, the maps view should show an
-SVG map with objective markers. Map artwork is fetched from
-`https://assets.tarkov.dev/maps/svg/`.
-
-If the page stays on the default task list, click **Maps** in the filter bar
-or keep the `view=maps` query param.
+without signing in. After game data loads, the Maps tab is selected. From a
+fresh browser profile, you may still need to click a map chip such as
+**Ground Zero** before the SVG map and objective markers appear. Map artwork
+is fetched from `https://assets.tarkov.dev/maps/svg/`.
 
 ## What `.env.example.local` is
 

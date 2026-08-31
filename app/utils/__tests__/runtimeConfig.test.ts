@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   GITHUB_IMAGE_DOMAINS,
@@ -37,6 +39,33 @@ describe('resolveSupabaseRuntimeConfig', () => {
       publicAnonKey: '',
       publicUrl: '',
     });
+  });
+  it('uses the committed local env stub as an empty pair that selects offline mode', () => {
+    const envPath = join(process.cwd(), '.env.example.local');
+    const parsed: NodeJS.ProcessEnv = {};
+    for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const separator = trimmed.indexOf('=');
+      if (separator <= 0) continue;
+      parsed[trimmed.slice(0, separator)] = trimmed.slice(separator + 1);
+    }
+    expect(parsed.SUPABASE_URL ?? '').toBe('');
+    expect(parsed.SUPABASE_ANON_KEY ?? '').toBe('');
+    const config = resolveSupabaseRuntimeConfig(parsed);
+    expect(config).toEqual({
+      privateAnonKey: '',
+      privateUrl: '',
+      publicAnonKey: '',
+      publicUrl: '',
+    });
+    expect(!config.publicUrl.trim() || !config.publicAnonKey.trim()).toBe(true);
+    expect(
+      shouldUseOfflineSupabaseFallback({
+        hostname: 'localhost',
+        isProduction: false,
+      })
+    ).toBe(true);
   });
   it('includes Tarkov asset hosts alongside GitHub image hosts', () => {
     expect([...GITHUB_IMAGE_DOMAINS, ...TARKOV_IMAGE_DOMAINS, ...YOUTUBE_IMAGE_DOMAINS]).toEqual(

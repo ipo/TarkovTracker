@@ -8,8 +8,10 @@ import { SUPPORTED_LOCALES } from './app/utils/locales';
 import {
   assertCloudflarePagesOutput,
   buildContentSecurityPolicyRouteRules,
+  isNuxtBuildCommand,
   promoteSpaFallback,
   resolveNitroPreset,
+  shouldAssertCloudflarePagesOutput,
 } from './app/utils/nuxtSecurityConfig';
 import {
   GITHUB_IMAGE_DOMAINS,
@@ -57,7 +59,7 @@ const STRIPE_PRICE_KEYS = [
   'STRIPE_PRICE_CHAD_6MONTH',
   'STRIPE_PRICE_CHAD_YEARLY',
 ] as const;
-const IS_BUILD_COMMAND = process.argv.some((a) => a === 'build' || a === 'generate');
+const IS_BUILD_COMMAND = isNuxtBuildCommand();
 const IS_CF_PREVIEW = process.env.CF_PAGES === '1' && process.env.CF_PAGES_BRANCH !== 'main';
 const IS_CI = process.env.CI === 'true';
 // Skip Stripe env validation in CI: GitHub Actions builds run with placeholder/test keys
@@ -450,7 +452,12 @@ export default defineNuxtConfig({
   },
   hooks: {
     'nitro:init': (nitro) => {
-      if (!String(nitro.options.preset || '').includes('cloudflare')) {
+      if (
+        !shouldAssertCloudflarePagesOutput({
+          isBuildCommand: IS_BUILD_COMMAND,
+          nitroPreset: String(nitro.options.preset || ''),
+        })
+      ) {
         return;
       }
       nitro.hooks.hook('compiled', () => {
