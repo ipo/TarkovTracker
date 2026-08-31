@@ -38,6 +38,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   ];
   const runtimeConfig = useRuntimeConfig();
   if (runtimeConfig.public.staticQuestMode === true) {
+    metadataStore.staticQuestModeActive = true;
     const baseUrl = String(runtimeConfig.public.staticQuestDataBaseUrl || '/quest-data');
     const hydrateLatest = createStaticQuestHydrator(
       (mode) => loadStaticQuestHydration(baseUrl, mode, (url) => $fetch(url)),
@@ -45,11 +46,11 @@ export default defineNuxtPlugin((nuxtApp) => {
         applyStaticQuestHydration(hydration, metadataStore, tarkovStore, isLatest)
     );
     let pendingHydrations = 0;
-    const hydrateMode = async (mode: GameMode): Promise<void> => {
+    const hydrateMode = async (mode: GameMode): Promise<boolean> => {
       pendingHydrations += 1;
       metadataStore.loading = true;
       try {
-        await hydrateLatest(mode);
+        return await hydrateLatest(mode);
       } catch (error) {
         metadataStore.error = error instanceof Error ? error : new Error(String(error));
         metadataStore.initializationFailed = true;

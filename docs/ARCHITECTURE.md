@@ -135,19 +135,23 @@ graph TB
 
 ### Active static hydration path
 
-`app/utils/staticQuestHydration.ts` loads `tasks|state|scores.<mode>.json` from the public runtime
-base URL. It adapts exporter names, canonical zone map ids, geometry, items, keys, traders, and maps
-into the existing Pinia shapes. It replaces only task and objective progress for the selected mode;
-other local fields remain in localStorage. `state.<mode>.json` alone determines confirmed quests,
-and map markers explicitly reject catalog-only tasks even if the legacy availability engine would
-infer them as available. A generation fence prevents a late response for an earlier mode from
-overwriting a newer selection.
+`app/utils/staticQuestHydration.ts` loads `tasks|state|scores.<file-mode>.json` from the public runtime
+base URL. Exporter file modes are `pvp` and reserved `pve`; the internal Seasonal mode reads the
+`pvp` files because the exporter geometry source is PvP-season. The adapter retains source and
+canonical zone identities, all geometry fields, required items and keys, and ordered recommendation
+scores/flags. Scores are exposed as `metadataStore.staticMapScores`. It replaces only task and
+objective progress for the selected app mode; other local fields remain in localStorage.
+`state.<file-mode>.json` alone determines confirmed and active quests, so all availability and map
+marker paths reject catalog-only tasks. Unknown confirmed state ids remain progress records but do
+not manufacture catalog tasks or markers. A generation fence prevents a late response for an
+earlier mode from overwriting a newer selection.
 
 An absolute configured base contributes only its origin to the production `connect-src` CSP so a
 LAN host works without widening other directives.
 
-Supabase setup returns the existing offline stub before creating a client. Consequently auth,
-progress sync, team sync, and realtime paths make no requests in this runtime.
+Supabase setup returns the existing offline stub before creating a client. Retained `/api/tarkov/*`
+fetch helpers, Supabase sync, realtime, and remote Tarkov.dev profile import also short-circuit in
+this runtime. `/api/twitch/config` is separate viewer configuration and is not a Tarkov data path.
 
 ### Three-Store Pattern + Facade
 

@@ -2,30 +2,107 @@
   "mode": "pvp",
   "schema_version": 1,
   "tasks": {
-    "fixture-pvp-task": {
-      "id": "fixture-pvp-task",
-      "english_name": "Static PvP quest",
-      "trader": { "id": "fixture-trader", "english_name": "Static trader" },
-      "map_ids": ["woods"],
-      "required_keys": [],
+    "5a27ba1c86f77461ea5a3c56": {
+      "english_name": "Weapons Circulation",
+      "id": "5a27ba1c86f77461ea5a3c56",
+      "map_ids": ["customs"],
       "objectives": [
         {
-          "id": "fixture-pvp-objective",
-          "english_description": "Visit the marked Woods location",
-          "type": "visit",
+          "english_description": "Catalog-only objective",
+          "id": "catalog-objective",
+          "map_ids": ["customs"],
           "optional": false,
-          "map_ids": ["woods"],
           "required_items": [],
+          "type": "visit",
           "zones": [
             {
-              "id": "fixture-pvp-zone",
-              "map": "woods",
-              "map_id": "woods",
-              "position": { "x": 75, "y": 0, "z": -120 }
+              "id": "catalog-zone",
+              "map": "customs-source",
+              "map_id": "customs",
+              "position": { "x": 2, "y": 0, "z": 2 }
             }
           ]
         }
-      ]
+      ],
+      "required_keys": [],
+      "trader": { "english_name": "Prapor", "id": "prapor" }
+    },
+    "quest-active": {
+      "english_name": "Confirmed Active",
+      "id": "quest-active",
+      "map_ids": ["ground-zero"],
+      "objectives": [
+        {
+          "english_description": "Visit the clinic",
+          "id": "obj-active",
+          "map_ids": ["ground-zero"],
+          "optional": false,
+          "required_items": [{ "english_name": "Useful Item", "id": "item-1" }],
+          "type": "visit",
+          "zones": [
+            {
+              "bottom": 1.5,
+              "id": "zone-clinic",
+              "map": "ground-low",
+              "map_id": "ground-zero",
+              "name": "Clinic zone",
+              "outline": [
+                { "x": 0, "y": 2.5, "z": 0 },
+                { "x": 1, "y": 2.5, "z": 0 },
+                { "x": 1, "y": 2.5, "z": 1 },
+                { "x": 0, "y": 2.5, "z": 1 }
+              ],
+              "position": { "x": 1.5, "y": 2.5, "z": 3.5 },
+              "size": { "x": 4, "y": 5, "z": 6 },
+              "terrainElevation": 2.5,
+              "top": 8.5
+            }
+          ]
+        }
+      ],
+      "required_keys": [
+        {
+          "keys": [{ "english_name": "Clinic Key", "id": "key-1" }],
+          "map_id": "ground-zero"
+        }
+      ],
+      "trader": { "english_name": "Prapor", "id": "prapor" }
+    },
+    "quest-completed": {
+      "english_name": "Confirmed Completed",
+      "id": "quest-completed",
+      "map_ids": ["ground-zero"],
+      "objectives": [
+        {
+          "english_description": "Hand over the item",
+          "id": "obj-completed",
+          "map_ids": ["ground-zero"],
+          "optional": false,
+          "required_items": [],
+          "type": "giveItem",
+          "zones": []
+        }
+      ],
+      "required_keys": [],
+      "trader": { "english_name": "Prapor", "id": "prapor" }
+    },
+    "quest-failed": {
+      "english_name": "Confirmed Failed",
+      "id": "quest-failed",
+      "map_ids": ["customs"],
+      "objectives": [
+        {
+          "english_description": "Failed objective",
+          "id": "obj-failed",
+          "map_ids": ["customs"],
+          "optional": false,
+          "required_items": [],
+          "type": "visit",
+          "zones": []
+        }
+      ],
+      "required_keys": [],
+      "trader": { "english_name": "Therapist", "id": "therapist" }
     }
   }
 }

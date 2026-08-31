@@ -65,7 +65,10 @@ import {
   performReset,
   resolveInitialSyncState,
 } from '@/stores/tarkov/resetEngine';
-import { hydrateStaticQuestStores } from '@/stores/tarkov/staticQuestStoreBridge';
+import {
+  hasStaticQuestHydrationHook,
+  hydrateStaticQuestStores,
+} from '@/stores/tarkov/staticQuestStoreBridge';
 import { recordLocalSyncTime, resetSyncTimeline } from '@/stores/tarkov/syncTimeline';
 import { useMetadataStore } from '@/stores/useMetadata';
 import { delay } from '@/utils/async';
@@ -82,6 +85,7 @@ import {
   sanitizeOwnedUserState,
   sanitizeTarkovUid,
 } from '@/utils/progressSanitizers';
+import { isStaticQuestMode, isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import {
   getCurrentSupabaseUserId,
@@ -300,13 +304,23 @@ const tarkovActions = {
   async switchGameMode(this: TarkovStoreInstance, mode: GameMode) {
     const previousMode = this.currentGameMode;
     actions.switchGameMode.call(this, mode);
+    if (!hasStaticQuestHydrationHook()) {
+      await syncProgressIfLoggedIn(this, 'Error syncing gamemode to backend:');
+      return;
+    }
     try {
-      if (await hydrateStaticQuestStores(mode)) return;
+      await hydrateStaticQuestStores(mode);
+      return;
     } catch (error) {
-      actions.switchGameMode.call(this, previousMode);
+      if (this.currentGameMode === mode) {
+        const metadataMode = useMetadataStore().currentGameMode;
+        actions.switchGameMode.call(
+          this,
+          isStaticQuestMode(metadataMode) ? metadataMode : previousMode
+        );
+      }
       throw error;
     }
-    await syncProgressIfLoggedIn(this, 'Error syncing gamemode to backend:');
   },
   async migrateDataIfNeeded(this: TarkovStoreInstance) {
     const needsMigration =
@@ -1190,6 +1204,10 @@ export function resetTarkovStoreForSessionTransition(
   clearProgressStorageSafely();
 }
 export async function initializeTarkovSync() {
+  if (isStaticQuestModeEnabled()) {
+    logger.debug('[TarkovStore] Skipping Supabase sync in static quest mode');
+    return;
+  }
   const tarkovStore = useTarkovStore();
   const { $supabase } = useNuxtApp();
   if (import.meta.client && $supabase.user.loggedIn) {

@@ -96,13 +96,24 @@ describe('useTarkovDevImport', () => {
     tarkovStore.getCurrentGameMode.mockReturnValue('pvp');
     mockGetImportCooldownRemainingMs.mockReturnValue(0);
     mockUseRuntimeConfig.mockReturnValue({
-      public: { tarkovDevImportCooldownMinutes: 60 },
+      public: { staticQuestMode: false, tarkovDevImportCooldownMinutes: 60 },
     });
     metadataStore.playerLevels = [
       { exp: 0, level: 1 },
       { exp: 1000, level: 5 },
       { exp: 2500, level: 12 },
     ];
+  });
+  it('does not call the remote profile endpoint in static quest mode', async () => {
+    mockUseRuntimeConfig.mockReturnValue({
+      public: { staticQuestMode: true, tarkovDevImportCooldownMinutes: 60 },
+    });
+    const composable = await loadComposable();
+    await expect(
+      composable.parseProfileUrl('https://tarkov.dev/players/regular/8560316')
+    ).resolves.toBeNull();
+    expect(mockFetch).not.toHaveBeenCalled();
+    expect(composable.importErrorCode.value).toBe('fetch_failed');
   });
   afterEach(() => {
     vi.unstubAllGlobals();

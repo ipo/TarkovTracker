@@ -4,6 +4,7 @@ import { useMetadataStore } from '@/stores/useMetadata';
 import { useTarkovStore } from '@/stores/useTarkov';
 import { isGameMode, type GameMode } from '@/utils/constants';
 import { logger } from '@/utils/logger';
+import { isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 import {
   getImportCooldownRemainingMs,
   recordImportCompletion,
@@ -191,6 +192,10 @@ export function useTarkovDevImport(): UseTarkovDevImportReturn {
       setCodedError(GENERIC_FETCH_ERROR, 'cooldown_active', {
         minutes: Math.max(1, Math.ceil(cooldownRemainingMs / MINUTE_MS)),
       });
+      return null;
+    }
+    if (isStaticQuestModeEnabled()) {
+      setCodedError(GENERIC_FETCH_ERROR, 'fetch_failed', null);
       return null;
     }
     importState.value = 'loading';

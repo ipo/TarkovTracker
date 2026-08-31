@@ -164,6 +164,15 @@ export const useProgressStore = defineStore('progress', () => {
       tasks: metadataStore.tasks.length,
     });
     const available: TaskAvailabilityMap = {};
+    if (metadataStore.staticQuestModeActive) {
+      for (const taskId of metadataStore.confirmedStaticUnlockedTaskIds) {
+        available[taskId] = { self: true };
+      }
+      perfEnd(perfTimer, {
+        confirmed: metadataStore.confirmedStaticUnlockedTaskIds.length,
+      });
+      return available;
+    }
     const tasks = metadataStore.tasks as Task[];
     const teamIds = Object.keys(visibleTeamStores.value);
     if (!hasTaskAvailabilityInputs(tasks, teamIds)) {

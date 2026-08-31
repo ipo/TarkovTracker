@@ -43,19 +43,20 @@ and have an agent verify the answer against the code.
 
 ## 0. Static quest viewer hydration
 
-**Summary.** The active SPA is a read-only static viewer. It fetches the exporter schema-v1 files
-`tasks.<mode>.json`, `state.<mode>.json`, and `scores.<mode>.json` directly from a public base URL.
-The default is `/quest-data`; `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` can point to an HTTP(S) LAN
-host. Supabase is provided as an offline stub and the retained TarkovTracker API pipelines are not
-part of boot or mode switching.
+**Summary.** The active SPA is a read-only static viewer. It fetches exporter schema-v1
+`tasks|state|scores.<file-mode>.json` directly from a public base URL. The exporter currently emits
+`pvp`; `pve` is reserved. Internal PvP and Seasonal use `pvp`, while internal PvE uses `pve`. The
+default base is `/quest-data`; `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` accepts a relative path or
+HTTP(S) LAN host. Supabase and retained Tarkov data APIs are disabled in this runtime.
 
 ```mermaid
 flowchart LR
-    Mode["Selected pvp/pve/seasonal mode"] --> Loader["staticQuestHydration.ts"]
+    Mode["App mode: pvp/pve/seasonal"] --> FileMode["File mode: pvp/pve/pvp"]
+    FileMode --> Loader["staticQuestHydration.ts"]
     Base["Public or LAN base URL"] --> Loader
-    Loader --> Tasks["tasks.mode.json"]
-    Loader --> State["state.mode.json"]
-    Loader --> Scores["scores.mode.json"]
+    Loader --> Tasks["tasks.file-mode.json"]
+    Loader --> State["state.file-mode.json"]
+    Loader --> Scores["scores.file-mode.json"]
     Tasks --> Metadata["useMetadataStore"]
     Scores --> Metadata
     State --> Progress["useTarkovStore mode progress"]
@@ -68,12 +69,16 @@ flowchart LR
 1. `metadata.client.ts` registers one static hydration callback and starts the selected mode load.
 2. The adapter fetches all three same-mode documents concurrently and validates their mode and
    `schema_version` before shaping task, map, trader, objective, zone, item, and progress objects.
-3. Only quest and objective entries present in `state.<mode>.json` become task progress. Catalog
-   entries present only in `tasks.<mode>.json` remain metadata and cannot create markers.
-4. The completed bundle replaces metadata plus task/objective progress for that mode in one apply
-   step. A request generation fence discards a slower response after a newer mode selection.
-5. The Supabase plugin returns its offline stub before client creation, so auth, team, progress
-   sync, and realtime channels cause no network traffic.
+3. Only quest and objective entries present in `state.<file-mode>.json` become task progress.
+   Active state ids also replace legacy inferred availability. Catalog-only entries cannot become
+   visible or create markers; unknown state ids remain progress without manufacturing tasks.
+4. The completed bundle replaces metadata plus task/objective progress for that app mode in one
+   apply step. It persists ordered scores/flags and full zone geometry. A request generation fence
+   discards a slower response after a newer selection; a current failure restores the last applied
+   mode.
+5. Supabase returns its offline stub before client creation. Sync, remote profile import, and every
+   retained `/api/tarkov/*` helper short-circuit. Viewer configuration such as
+   `/api/twitch/config` is outside this game-data boundary.
 
 ### Files
 
@@ -86,14 +91,18 @@ flowchart LR
 
 ### Invariants
 
-- All three documents must declare schema version 1 and the requested mode; mixed or malformed
+- All three documents must declare schema version 1 and the resolved file mode; mixed or malformed
   bundles fail without partially applying state.
-- `state.<mode>.json` is the only authority for confirmed quests. Task availability inference must
-  never add a self marker for a catalog-only quest.
-- Zones use exporter `map_id` as the canonical map identity while preserving their geometry.
-- Only the latest mode request may apply. Switching modes reloads all three matching filenames.
-- Static viewer runtime makes no Supabase or TarkovTracker API calls. A configured LAN base URL is
-  the only additional data origin used by hydration.
+- `state.<file-mode>.json` is the only authority for confirmed and active quests. Prerequisite
+  inference must never add a catalog-only quest to availability or self markers.
+- Zones retain the source `map`, canonical `map_id`, all geometry and unknown exporter fields;
+  adapted zones expose canonical `map` plus `sourceMapId`. Score order and all recommendation flags
+  remain available on `metadataStore.staticMapScores`.
+- Only the latest app-mode request may apply. PvP and Seasonal reload the three `pvp` filenames;
+  PvE reloads the reserved three `pve` filenames.
+- Static viewer runtime makes no Supabase or `/api/tarkov/*` calls and disables remote profile
+  import. A configured absolute base must use HTTP(S); HTTPS deployments remain subject to browser
+  mixed-content rules when pointed at an HTTP LAN host.
 
 ---
 

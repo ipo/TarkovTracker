@@ -13,6 +13,9 @@ import { ACTIVE_SEASON_NUMBER } from '@/utils/constants';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import type { UserProgressData } from '@/stores/progressState';
 import type { Task } from '@/types/tarkov';
+const staticQuestRuntimeConfig = vi.hoisted(() => ({
+  public: { staticQuestMode: false },
+}));
 const {
   channel,
   cleanupSync,
@@ -249,6 +252,7 @@ mockNuxtImport('useNuxtApp', () => () => ({
   },
   $supabase: supabaseContext,
 }));
+mockNuxtImport('useRuntimeConfig', () => () => staticQuestRuntimeConfig);
 vi.mock('@/composables/supabase/useSupabaseSync', () => ({
   useSupabaseSync: () => useSupabaseSyncMock(),
 }));
@@ -364,6 +368,7 @@ const setLocalProgress = (level = 5) => {
 };
 describe('useTarkov sync integration', () => {
   beforeEach(() => {
+    staticQuestRuntimeConfig.public.staticQuestMode = false;
     resetTarkovSync('test setup');
     setActivePinia(createPinia());
     localStorage.clear();
@@ -401,6 +406,12 @@ describe('useTarkov sync integration', () => {
       pause: pauseSync,
       resume: resumeSync,
     });
+  });
+  it('does not initialize Supabase sync in static quest mode', async () => {
+    staticQuestRuntimeConfig.public.staticQuestMode = true;
+    await expect(initializeTarkovSync()).resolves.toBeUndefined();
+    expect(useSupabaseSyncMock).not.toHaveBeenCalled();
+    expect(single).not.toHaveBeenCalled();
   });
   afterEach(() => {
     resetTarkovSync('test teardown');

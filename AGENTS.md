@@ -51,7 +51,8 @@ can read it and an agent can verify any claim against the code. Each system sect
 - **Stack:** Nuxt 4 SPA (`ssr: false`), Vue 3 Composition API, TypeScript strict, Pinia, Supabase, Tailwind CSS v4, Vitest, Cloudflare Pages/Workers.
 - **Runtime:** Node >=24.19.0, packageManager `pnpm@11.14.0` (engines allow `pnpm >=10.34.5 <12`).
 - **Static viewer runtime:** task metadata and confirmed progress load from
-  `tasks|state|scores.<mode>.json`; Supabase auth/sync/team realtime are disabled.
+  `tasks|state|scores.<file-mode>.json`; Supabase auth/sync/team realtime and retained Tarkov data
+  APIs are disabled.
 - **Retained backend:** Supabase and Nitro routes remain in the repository for later cleanup, but
   the static viewer boot path does not call them.
 - **Deployment:** Cloudflare Pages/Workers for the frontend and `api-gateway`; the Supabase GitHub
@@ -205,9 +206,11 @@ Naming:
 ## State, Data, and APIs
 
 - Static quest hydration loads all three schema-v1 documents for the selected mode from
-  `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` (default `/quest-data`). `state.<mode>.json` is the sole
-  authority for which quests are confirmed; map markers must never infer additional available
-  quests from the task catalog. A mode switch atomically replaces task metadata and that mode's
+  `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` (default `/quest-data`). Exporter file modes are `pvp`
+  and reserved `pve`; internal Seasonal uses `pvp` because its source dataset is PvP-season.
+  `state.<file-mode>.json` is the sole authority for confirmed and active quests; availability and
+  map markers must never infer catalog-only quests. Scores and flags remain ordered in
+  `metadataStore.staticMapScores`. A mode switch atomically replaces task metadata and that mode's
   task/objective progress, and stale slower loads must not overwrite the latest selection.
 - Pinia stores in `app/stores/`, auto-registered by Nuxt. Use `pinia-plugin-persistedstate` where applicable.
 - Supabase client: `app/plugins/supabase.client.ts`. Regenerate types: `pnpm run supabase:types`.

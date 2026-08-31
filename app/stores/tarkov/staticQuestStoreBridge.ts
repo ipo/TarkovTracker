@@ -1,11 +1,11 @@
 import type { GameMode } from '@/utils/constants';
-type StaticQuestHydrationHook = (mode: GameMode) => Promise<void>;
+type StaticQuestHydrationHook = (mode: GameMode) => Promise<boolean>;
 let hydrationHook: StaticQuestHydrationHook | null = null;
 export const registerStaticQuestHydrationHook = (hook: StaticQuestHydrationHook): void => {
   hydrationHook = hook;
 };
+export const hasStaticQuestHydrationHook = (): boolean => hydrationHook !== null;
 export const hydrateStaticQuestStores = async (mode: GameMode): Promise<boolean> => {
   if (!hydrationHook) return false;
-  await hydrationHook(mode);
-  return true;
+  return hydrationHook(mode);
 };

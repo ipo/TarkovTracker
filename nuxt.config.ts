@@ -203,7 +203,7 @@ export default defineNuxtConfig({
       supabaseUrl: PUBLIC_SUPABASE_URL,
       clientLogSinkUrl,
       staticQuestDataBaseUrl,
-      staticQuestMode: true,
+      staticQuestMode: process.env.NODE_ENV !== 'test',
       turnstileSiteKey: TURNSTILE_SITE_KEY,
       tarkovDevImportCooldownMinutes: Number(
         process.env.NUXT_PUBLIC_TARKOV_DEV_IMPORT_COOLDOWN_MINUTES?.trim() || '60'
