@@ -1,0 +1,24 @@
+{
+  "maps": [
+    {
+      "english_name": "Customs",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "customs",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "PvE Only Quest",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "quest-pve",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 9.0
+    }
+  ],
+  "mode": "pve",
+  "schema_version": 1
+}

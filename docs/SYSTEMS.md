@@ -37,18 +37,17 @@ and have an agent verify the answer against the code.
     selection, public resolution, and client polling
 11. [Boot-time asset-failure recovery](#11-boot-time-asset-failure-recovery) — recovering from
     stale-chunk load failures before and after the app boots
+12. [Static quest hydration](#12-static-quest-hydration) — confirmed-only map data from exporter JSON
 
 ---
 
 ## 1. Tarkov.dev data integration
 
-**Summary.** TarkovTracker does not ship its own copy of the game database. Static game data
-(tasks, hideout stations, items, maps, traders, prestige levels, player levels, map spawns) comes
-from the community-maintained `json.tarkov.dev` static JSON API. The browser never calls
-`json.tarkov.dev` directly — every request goes through our own Nitro server routes under
-`/api/tarkov/*`. The server route fetches from upstream, adapts the raw JSON into the shape our
-client expects, and (for most endpoints) applies corrections (see [Overlay](#4-overlay-corrections))
-before returning it.
+**Summary.** Upstream TarkovTracker does not ship its own copy of the game database. This fork
+keeps that pipeline in the tree but does not use it at runtime when static quest hydration is
+enabled (see [Static quest hydration](#12-static-quest-hydration)). The leftover `/api/tarkov/*`
+proxy still talks to `json.tarkov.dev` if that path is invoked; the browser must not call
+`json.tarkov.dev` or `api.tarkov.dev` directly.
 
 > **Note on upstream endpoints.** `json.tarkov.dev` is the static JSON API TarkovTracker uses for
 > all Tarkov.dev game data. TarkovTracker no longer uses the older `api.tarkov.dev` GraphQL API;
@@ -1084,6 +1083,56 @@ Page load
   otherwise storage breakage produces an unbounded reload loop.
 - The retry URL always carries `_tt_retry=<timestamp>` so the reload bypasses the browser's cached
   HTML and revalidates against the current deployment.
+
+## 12. Static quest hydration
+
+**Summary.** The fork map view is driven by three exporter files from `eft_track`:
+`tasks.<mode>.json`, `state.<mode>.json`, and `scores.<mode>.json`. The adapter fetches those files
+from `public/quest-data/` or `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`, shapes them into metadata and
+progress store state, and stubs Supabase auth, team sync, and tarkov.dev profile import. Quest
+availability is never inferred from prerequisites.
+
+```mermaid
+flowchart LR
+  Files["tasks|state|scores.<mode>.json"] --> Adapter["staticQuestData adapter"]
+  Adapter --> Metadata["useMetadataStore"]
+  Adapter --> Progress["useTarkovStore + confirmed unlocked ids"]
+  Metadata --> Marks["useMapObjectiveMarks"]
+  Progress --> Marks
+```
+
+### Flow
+
+1. `useMetadataStore.initialize` / `fetchAllData` / mode switch calls `hydrateFromStaticQuestData`.
+2. The adapter loads the three files for the current mode (`pvp` and `seasonal` share `*.pvp.json`;
+   `pve` loads `*.pve.json`).
+3. Task geometry (including zone `outline` / `position` / `terrainElevation`) is copied from
+   `tasks.<mode>.json`. Zone `map` is reshaped to `{ id: map_id }` so existing marker code can join
+   on canonical map ids.
+4. `state.<mode>.json` is the only source of quest/objective status. Active quests become
+   `confirmedUnlockedTaskIds`; completed and failed quests set tarkov-store completions. Catalog
+   quests that are missing from state, including empty-requirement quests, stay locked.
+5. A generation counter plus abort ignores stale responses if the user switches mode mid-fetch.
+6. `/api/tarkov/*`, Supabase client creation, progress sync, and tarkov.dev profile fetches are
+   skipped while hydration is enabled.
+
+### Implementing files
+
+- `app/utils/staticQuestData.ts` — URL, fetch, schema checks, shaping
+- `app/stores/useMetadata.ts` — `hydrateFromStaticQuestData`, remote fetch short-circuit
+- `app/stores/useProgress.ts` — confirmed-only `unlockedTasks`
+- `app/plugins/supabase.client.ts` — forced offline stub
+- `app/stores/useTarkov.ts` — skipped `initializeTarkovSync`
+- `public/quest-data/` — served JSON (fixtures in-repo; replace with exporter output)
+
+### Invariants
+
+- Map markers can only appear for quest ids present in `state.<mode>.json`.
+- Switching game mode reloads the matching files; a slower previous fetch cannot overwrite the new
+  mode.
+- Runtime hydration does not call Supabase or tarkovtracker `/api/*` endpoints.
+- `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` may be an absolute LAN origin; CSP `connect-src` must
+  include that origin.
 
 ## When this doc is wrong
 

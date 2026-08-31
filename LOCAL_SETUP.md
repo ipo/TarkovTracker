@@ -7,8 +7,9 @@ Supabase project, account, or login to open tasks and maps.
 
 - Node.js >= 24.19.0
 - Corepack (ships with Node; used to pin `pnpm@11.14.0`)
-- Network access to `json.tarkov.dev` and `assets.tarkov.dev` for game data
-  and map SVGs (this setup does not mirror those assets)
+- Optional LAN or local static JSON from `eft_track`'s exporter
+  (`tasks.<mode>.json`, `state.<mode>.json`, `scores.<mode>.json`)
+- Map artwork is still fetched from `https://assets.tarkov.dev/maps/svg/`
 
 ## Steps
 
@@ -23,8 +24,14 @@ pnpm run dev
 
 Then open [http://localhost:3000](http://localhost:3000). Task and hideout
 progress persist in the browser `localStorage`. Auth, sync, realtime, and
-team features stay disabled until you replace the dummy public Supabase
-values in `.env` with a real project.
+team features stay stubbed: static quest hydration forces the offline
+Supabase client even if dummy credentials are later filled in.
+
+Copy exporter output into `public/quest-data/` (`tasks.pvp.json`,
+`state.pvp.json`, `scores.pvp.json`, and matching `pve` files if you use
+that mode), or set `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` to a LAN URL
+that serves those filenames. The committed files in `public/quest-data/`
+are small fixtures for boot and tests, not a full live dump.
 
 To bind the dev server on the LAN instead of localhost only:
 
@@ -41,8 +48,9 @@ With the dev server running, open
 [http://localhost:3000/tasks?view=maps](http://localhost:3000/tasks?view=maps)
 without signing in. The Maps tab can be selected while the map filter is still
 **All**. **All does not display a map.** Click a specific map chip such as
-**Ground Zero** before the SVG map and objective markers appear. Map artwork
-is fetched from `https://assets.tarkov.dev/maps/svg/`.
+**Ground Zero** before the SVG map and objective markers appear. Markers
+are limited to quests present in `state.<mode>.json`. Map artwork is
+fetched from `https://assets.tarkov.dev/maps/svg/`.
 
 ## Local progress check
 
@@ -60,6 +68,8 @@ variables referenced by `nuxt.config.ts` and `app/utils/runtimeConfig.ts`:
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
+- `NUXT_PUBLIC_STATIC_QUEST_DATA`
+- `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`
 
 Copy it to `.env` (gitignored). Leave both values empty. `resolveSupabaseRuntimeConfig()`
 throws only when one of the two is set; an empty pair boots Nuxt and the

@@ -81,6 +81,7 @@ import {
   sanitizeOwnedUserState,
   sanitizeTarkovUid,
 } from '@/utils/progressSanitizers';
+import { isStaticQuestDataEnabled } from '@/utils/staticQuestData';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import {
   getCurrentSupabaseUserId,
@@ -1182,6 +1183,10 @@ export function resetTarkovStoreForSessionTransition(
   clearProgressStorageSafely();
 }
 export async function initializeTarkovSync() {
+  if (isStaticQuestDataEnabled()) {
+    logger.debug('[TarkovStore] Skipping Supabase sync; static quest hydration is enabled');
+    return;
+  }
   const tarkovStore = useTarkovStore();
   const { $supabase } = useNuxtApp();
   if (import.meta.client && $supabase.user.loggedIn) {

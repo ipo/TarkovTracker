@@ -1,0 +1,60 @@
+{
+  "mode": "pve",
+  "schema_version": 1,
+  "tasks": {
+    "quest-pve": {
+      "english_name": "PvE Only Quest",
+      "id": "quest-pve",
+      "map_ids": ["customs"],
+      "objectives": [
+        {
+          "english_description": "Visit dorms",
+          "id": "obj-pve",
+          "map_ids": ["customs"],
+          "optional": false,
+          "required_items": [],
+          "type": "visit",
+          "zones": [
+            {
+              "id": "zone-dorms",
+              "map": "customs",
+              "map_id": "customs",
+              "outline": [
+                {
+                  "x": 4,
+                  "y": 0,
+                  "z": 4
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "z": 4
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "z": 6
+                },
+                {
+                  "x": 4,
+                  "y": 0,
+                  "z": 6
+                }
+              ],
+              "position": {
+                "x": 5,
+                "y": 0,
+                "z": 5
+              }
+            }
+          ]
+        }
+      ],
+      "required_keys": [],
+      "trader": {
+        "english_name": "Mechanic",
+        "id": "mechanic"
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ const runtimeConfig = {
   public: {
     supabaseAnonKey: 'test-anon-key',
     supabaseUrl: 'https://test.supabase.co',
+    staticQuestData: { enabled: false, baseUrl: '/quest-data' },
   },
 };
 const { loggerMock, mockCreateClient, offlineFallbackMock } = vi.hoisted(() => ({
@@ -114,6 +115,7 @@ describe('supabase plugin', () => {
     offlineFallbackMock.mockReturnValue(true);
     runtimeConfig.public.supabaseAnonKey = 'test-anon-key';
     runtimeConfig.public.supabaseUrl = 'https://test.supabase.co';
+    runtimeConfig.public.staticQuestData = { enabled: false, baseUrl: '/quest-data' };
     localStorage.setItem('sb-test-auth-token', 'token');
     localStorage.setItem(STORAGE_KEYS.progress, 'progress-state');
     localStorage.setItem(STORAGE_KEYS.preferences, 'preferences-state');
@@ -392,6 +394,19 @@ describe('supabase plugin', () => {
     expect(signOut).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem(STORAGE_KEYS.progress)).toBe('progress-state');
     expect(localStorage.getItem(STORAGE_KEYS.preferences)).toBe('preferences-state');
+  });
+  it('provides an offline stub when static quest hydration is enabled even with supabase config', async () => {
+    runtimeConfig.public.supabaseUrl = 'https://test.supabase.co';
+    runtimeConfig.public.supabaseAnonKey = 'test-anon-key';
+    runtimeConfig.public.staticQuestData = { enabled: true, baseUrl: '/quest-data' };
+    const plugin = (await import('@/plugins/supabase.client')).default;
+    const result = (await plugin.setup?.({} as Parameters<NonNullable<typeof plugin.setup>>[0])) as
+      SupabasePluginProvide | undefined;
+    expect(result?.provide.supabase.isOfflineMode).toBe(true);
+    expect(mockCreateClient).not.toHaveBeenCalled();
+    await expect(result?.provide.supabase.signInWithOAuth('discord')).rejects.toThrow(
+      'Supabase not configured - login unavailable in offline mode'
+    );
   });
   it('provides an offline stub when supabase config is missing', async () => {
     localStorage.removeItem('sb-test-auth-token');

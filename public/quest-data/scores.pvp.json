@@ -1,0 +1,42 @@
+{
+  "maps": [
+    {
+      "english_name": "Ground Zero",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "ground-zero",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "Confirmed Active",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "quest-active",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 12.5
+    },
+    {
+      "english_name": "Customs",
+      "finishable_here": false,
+      "gateway": false,
+      "id": "customs",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "Confirmed Failed",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "quest-failed",
+          "label": "off-goal",
+          "off_goal": true
+        }
+      ],
+      "score": 1.0
+    }
+  ],
+  "mode": "pvp",
+  "schema_version": 1
+}

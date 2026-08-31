@@ -182,6 +182,16 @@ export default defineNuxtPlugin({
     const supabaseUrl = String(runtimeConfig.public.supabaseUrl || '').trim();
     const supabaseKey = String(runtimeConfig.public.supabaseAnonKey || '').trim();
     const missingConfigMessage = '[Supabase] Missing SUPABASE_URL or SUPABASE_ANON_KEY';
+    const staticQuestDataEnabled =
+      (runtimeConfig.public as { staticQuestData?: { enabled?: boolean } }).staticQuestData
+        ?.enabled === true;
+    if (staticQuestDataEnabled) {
+      logger.warn(
+        '[Supabase] Static quest hydration enabled. Running with the offline stub and skipping remote auth.'
+      );
+      const stub = buildStub();
+      return { provide: { supabase: stub } };
+    }
     if (!supabaseUrl || !supabaseKey) {
       const allowOfflineFallback = shouldUseOfflineSupabaseFallback({
         hostname: import.meta.client ? window.location.hostname : undefined,

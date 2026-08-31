@@ -14,6 +14,7 @@ import { logger } from '@/utils/logger';
 import { perfEnd, perfStart } from '@/utils/perf';
 import { computeInvalidProgress } from '@/utils/progressInvalidation';
 import { createDefaultOwnedProgressData } from '@/utils/progressSanitizers';
+import { isStaticQuestDataEnabled } from '@/utils/staticQuestData';
 import {
   getCompletionFlags,
   getTaskStatusFromFlags,
@@ -163,6 +164,14 @@ export const useProgressStore = defineStore('progress', () => {
     const perfTimer = perfStart('[Progress] unlockedTasks', {
       tasks: metadataStore.tasks.length,
     });
+    if (isStaticQuestDataEnabled()) {
+      const available: TaskAvailabilityMap = {};
+      for (const taskId of metadataStore.confirmedUnlockedTaskIds) {
+        available[taskId] = { self: true };
+      }
+      perfEnd(perfTimer, { confirmed: metadataStore.confirmedUnlockedTaskIds.length });
+      return available;
+    }
     const available: TaskAvailabilityMap = {};
     const tasks = metadataStore.tasks as Task[];
     const teamIds = Object.keys(visibleTeamStores.value);

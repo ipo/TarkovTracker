@@ -8,6 +8,7 @@ import {
   resolveClientLogSinkUrl,
   resolveCanonicalSiteUrl,
   resolvePublicAppUrl,
+  resolveStaticQuestDataRuntimeConfig,
   resolveSupabaseRuntimeConfig,
   shouldEnableAnalyticsIntegrations,
   shouldUseOfflineSupabaseFallback,
@@ -203,5 +204,28 @@ describe('shouldEnableAnalyticsIntegrations', () => {
       })
     ).toBe(true);
     expect(isPrimaryAppHostname('www.tarkovtracker.org:443')).toBe(true);
+  });
+});
+describe('resolveStaticQuestDataRuntimeConfig', () => {
+  it('defaults to enabled outside tests and /quest-data', () => {
+    expect(resolveStaticQuestDataRuntimeConfig({}, 'development')).toEqual({
+      enabled: true,
+      baseUrl: '/quest-data',
+    });
+    expect(resolveStaticQuestDataRuntimeConfig({}, 'test').enabled).toBe(false);
+  });
+  it('honors explicit public env overrides', () => {
+    expect(
+      resolveStaticQuestDataRuntimeConfig(
+        {
+          NUXT_PUBLIC_STATIC_QUEST_DATA: 'true',
+          NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL: 'http://192.168.0.5:9000/',
+        },
+        'test'
+      )
+    ).toEqual({
+      enabled: true,
+      baseUrl: 'http://192.168.0.5:9000',
+    });
   });
 });

@@ -33,6 +33,12 @@ import { queueIdleTask } from '@/utils/idleScheduler';
 import { logger } from '@/utils/logger';
 import { perfEnd, perfStart } from '@/utils/perf';
 import { inferNewBeginningPrestigeLevel } from '@/utils/prestige';
+import {
+  beginStaticQuestHydration,
+  fetchAndAdaptStaticQuestData,
+  isCurrentStaticQuestHydration,
+  isStaticQuestDataEnabled,
+} from '@/utils/staticQuestData';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import { normalizeStoryChapter } from '@/utils/storylineObjectives';
 import {
@@ -44,6 +50,7 @@ import {
   setCachedData,
 } from '@/utils/tarkovCache';
 import { normalizeTaskObjectives } from '@/utils/taskNormalization';
+import type { StaticQuestScoreMap } from '@/types/staticQuestData';
 import type {
   FinishRewards,
   GameEdition,
@@ -94,6 +101,9 @@ export interface MetadataStoreTaskLookup {
 const hasRenderableCriticalMetadata = (
   state: Pick<MetadataState, 'hideoutStations' | 'tasks'>
 ): boolean => {
+  if (isStaticQuestDataEnabled()) {
+    return true;
+  }
   return state.tasks.length > 0 && state.hideoutStations.length > 0;
 };
 interface MetadataState {
@@ -151,6 +161,9 @@ interface MetadataState {
   languageCode: string;
   currentGameMode: string;
   lastCachePurgeCheckAt: number;
+  confirmedUnlockedTaskIds: string[];
+  staticMapScores: StaticQuestScoreMap[];
+  staticQuestFileMode: 'pvp' | 'pve' | null;
 }
 const isNewBeginningTask = (task: Task): boolean => {
   if (!task?.id) return false;
@@ -216,6 +229,9 @@ export const useMetadataStore = defineStore('metadata', {
     languageCode: 'en',
     currentGameMode: GAME_MODES.PVP,
     lastCachePurgeCheckAt: 0,
+    confirmedUnlockedTaskIds: [],
+    staticMapScores: markRaw([]),
+    staticQuestFileMode: null,
   }),
   getters: {
     // Computed properties for tasks
@@ -522,6 +538,9 @@ export const useMetadataStore = defineStore('metadata', {
       promiseRequestKey?: string;
       throwOnError?: boolean;
     }): Promise<void> {
+      if (isStaticQuestDataEnabled() && config.endpoint.startsWith('/api/')) {
+        return;
+      }
       const { promiseKey, promiseRequestKey, forceRefresh = false } = config;
       if (promiseKey) {
         const promises = getPromiseStore(this);
@@ -757,6 +776,7 @@ export const useMetadataStore = defineStore('metadata', {
      * Check if the server has purged cache and clear local cache if needed.
      */
     async checkCachePurge(): Promise<void> {
+      if (isStaticQuestDataEnabled()) return;
       if (typeof window === 'undefined') return;
       const now = Date.now();
       const storedCheckRaw = localStorage.getItem(CACHE_PURGE_CHECK_STORAGE_KEY);
@@ -822,6 +842,10 @@ export const useMetadataStore = defineStore('metadata', {
         } | null;
       } = {}
     ) {
+      if (isStaticQuestDataEnabled()) {
+        await this.hydrateFromStaticQuestData();
+        return;
+      }
       const { deferHeavy = false, cachedData = null } = options;
       const perfTimer = perfStart('[Metadata] fetchAllData', { forceRefresh, deferHeavy });
       this.checkCachePurge().catch((err) =>
@@ -1475,6 +1499,12 @@ export const useMetadataStore = defineStore('metadata', {
       }
     },
     assertCriticalMetadataReady() {
+      if (isStaticQuestDataEnabled()) {
+        if (this.error) {
+          throw this.error;
+        }
+        return;
+      }
       const missing: string[] = [];
       if (this.error || this.tasks.length === 0) {
         missing.push('tasks');
@@ -1484,6 +1514,65 @@ export const useMetadataStore = defineStore('metadata', {
       }
       if (missing.length > 0) {
         throw new Error(`[MetadataStore] Critical metadata unavailable: ${missing.join(', ')}`);
+      }
+    },
+    async hydrateFromStaticQuestData() {
+      const request = beginStaticQuestHydration();
+      const perfTimer = perfStart('[Metadata] hydrateFromStaticQuestData', {
+        gameMode: this.currentGameMode,
+      });
+      this.loading = true;
+      this.error = null;
+      try {
+        const adapted = await fetchAndAdaptStaticQuestData(
+          this.currentGameMode,
+          undefined,
+          request.signal
+        );
+        if (!isCurrentStaticQuestHydration(request.generation)) {
+          return;
+        }
+        this.processTasksData({
+          tasks: adapted.tasks,
+          maps: adapted.maps,
+          traders: adapted.traders,
+        });
+        this.tasksObjectivesPending = false;
+        this.tasksObjectivesHydrated = adapted.tasks.some(
+          (task) => Array.isArray(task.objectives) && task.objectives.length > 0
+        );
+        this.confirmedUnlockedTaskIds = adapted.progress.unlockedTaskIds;
+        this.staticMapScores = markRaw(adapted.scores);
+        this.staticQuestFileMode = adapted.fileMode;
+        const { useTarkovStore } = await import('@/stores/useTarkov');
+        if (!isCurrentStaticQuestHydration(request.generation)) {
+          return;
+        }
+        const tarkovStore = useTarkovStore();
+        const gameMode = this.currentGameMode as GameMode;
+        tarkovStore.$patch((state) => {
+          const modeData = state[gameMode];
+          if (!modeData) return;
+          modeData.taskCompletions = adapted.progress.taskCompletions;
+          modeData.taskObjectives = adapted.progress.taskObjectives;
+        });
+        this.initialized = true;
+        this.initializationFailed = false;
+      } catch (error) {
+        if (!isCurrentStaticQuestHydration(request.generation)) {
+          return;
+        }
+        this.error = error instanceof Error ? error : new Error(String(error));
+        logger.error('[MetadataStore] Static quest hydration failed:', error);
+        throw this.error;
+      } finally {
+        if (isCurrentStaticQuestHydration(request.generation)) {
+          this.loading = false;
+        }
+        perfEnd(perfTimer, {
+          tasks: this.tasks.length,
+          maps: this.maps.length,
+        });
       }
     },
     /**
@@ -2070,6 +2159,9 @@ export const useMetadataStore = defineStore('metadata', {
       this.tasksObjectivesPending = false;
       this.tasksObjectivesHydrated = false;
       this.mapSpawnsLoaded = false;
+      this.confirmedUnlockedTaskIds = [];
+      this.staticMapScores = markRaw([]);
+      this.staticQuestFileMode = null;
       this.mapSpawnsLoading = false;
       this.mapSpawnsError = null;
     },

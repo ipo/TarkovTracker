@@ -485,13 +485,15 @@ Placement is enabled for both environments through the top-level `[placement]` b
 
 **Client-side (browser) — Nuxt public runtime config:**
 
-| Variable                                         | Description                                              | Required |
-| ------------------------------------------------ | -------------------------------------------------------- | -------- |
-| `SUPABASE_URL`                                   | Shared Supabase project URL for auth and sync            | Yes¹     |
-| `SUPABASE_ANON_KEY`                              | Shared Supabase anon key for auth and sync               | Yes¹     |
-| `NUXT_PUBLIC_CLIENT_LOG_SINK_URL`                | Optional browser log collector URL (disabled by default) | No       |
-| `NUXT_PUBLIC_TURNSTILE_SITE_KEY`                 | Turnstile widget sitekey for Tarkov.dev profile imports  | No²      |
-| `NUXT_PUBLIC_TARKOV_DEV_IMPORT_COOLDOWN_MINUTES` | Browser cooldown after a confirmed profile import        | No       |
+| Variable                                         | Description                                                 | Required |
+| ------------------------------------------------ | ----------------------------------------------------------- | -------- |
+| `SUPABASE_URL`                                   | Shared Supabase project URL for auth and sync               | Yes¹     |
+| `SUPABASE_ANON_KEY`                              | Shared Supabase anon key for auth and sync                  | Yes¹     |
+| `NUXT_PUBLIC_CLIENT_LOG_SINK_URL`                | Optional browser log collector URL (disabled by default)    | No       |
+| `NUXT_PUBLIC_TURNSTILE_SITE_KEY`                 | Turnstile widget sitekey for Tarkov.dev profile imports     | No²      |
+| `NUXT_PUBLIC_TARKOV_DEV_IMPORT_COOLDOWN_MINUTES` | Browser cooldown after a confirmed profile import           | No       |
+| `NUXT_PUBLIC_STATIC_QUEST_DATA`                  | Enable static exporter hydration (default on outside tests) | No       |
+| `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`         | Base URL for `tasks                                         | state    | scores.<mode>.json` | No  |
 
 > **¹ Required in production.** These shared names are consumed by Nuxt, Pages, Workers, and Edge
 > Functions. Without Supabase configuration, auth, sync, realtime, and team features are unavailable;

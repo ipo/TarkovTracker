@@ -30,6 +30,11 @@ describe('nuxt.config CSP', () => {
     expect(connectSources).toContain('https://logs.example.com');
     expect(connectSources).toContain('https://db.example.com');
     expect(connectSources).toContain('wss://db.example.com');
+    expect(
+      getConnectSrcSources({
+        staticQuestDataBaseUrl: 'http://192.168.1.10:8080/quest-data',
+      })
+    ).toContain('http://192.168.1.10:8080');
     expect(connectSources).not.toContain('https://logs.example.com/v1/collect');
     expect(connectSources).not.toContain('https://db.example.com/auth/v1');
   });

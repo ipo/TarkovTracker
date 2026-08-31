@@ -101,3 +101,22 @@ export const shouldUseOfflineSupabaseFallback = ({
   }
   return isPagesPreviewHostname(hostname);
 };
+export const DEFAULT_STATIC_QUEST_DATA_BASE_URL = '/quest-data';
+export const normalizeStaticQuestDataBaseUrl = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return DEFAULT_STATIC_QUEST_DATA_BASE_URL;
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/\/+$/, '');
+  }
+  return `/${trimmed.replace(/^\/+|\/+$/g, '')}`;
+};
+export const resolveStaticQuestDataRuntimeConfig = (
+  env: NodeJS.ProcessEnv,
+  nodeEnv: string = env.NODE_ENV || 'production'
+): { enabled: boolean; baseUrl: string } => {
+  const configured = env.NUXT_PUBLIC_STATIC_QUEST_DATA?.trim();
+  const enabled = configured ? configured === 'true' : nodeEnv !== 'test';
+  const baseUrl =
+    env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || DEFAULT_STATIC_QUEST_DATA_BASE_URL;
+  return { enabled, baseUrl: normalizeStaticQuestDataBaseUrl(baseUrl) };
+};

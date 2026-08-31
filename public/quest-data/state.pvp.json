@@ -1,0 +1,45 @@
+{
+  "mode": "pvp",
+  "quests": {
+    "quest-active": {
+      "id": "quest-active",
+      "objectives": [
+        {
+          "completed": false,
+          "id": "obj-active",
+          "optional": false,
+          "pending": true,
+          "required": true
+        }
+      ],
+      "status": "active"
+    },
+    "quest-completed": {
+      "id": "quest-completed",
+      "objectives": [
+        {
+          "completed": true,
+          "id": "obj-completed",
+          "optional": false,
+          "pending": false,
+          "required": true
+        }
+      ],
+      "status": "completed"
+    },
+    "quest-failed": {
+      "id": "quest-failed",
+      "objectives": [
+        {
+          "completed": false,
+          "id": "obj-failed",
+          "optional": false,
+          "pending": true,
+          "required": true
+        }
+      ],
+      "status": "failed"
+    }
+  },
+  "schema_version": 1
+}
