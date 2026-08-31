@@ -16,6 +16,15 @@ export const DEFAULT_NITRO_PRESET = 'cloudflare-pages';
 export const resolveNitroPreset = (configuredPreset?: string): string => {
   return configuredPreset?.trim() || DEFAULT_NITRO_PRESET;
 };
+export const isNuxtBuildCommand = (argv: readonly string[] = process.argv): boolean =>
+  argv.some((arg) => arg === 'build' || arg === 'generate');
+export const shouldAssertCloudflarePagesOutput = ({
+  isBuildCommand,
+  nitroPreset,
+}: {
+  isBuildCommand: boolean;
+  nitroPreset?: string;
+}): boolean => isBuildCommand && String(nitroPreset || '').includes('cloudflare');
 export const promoteSpaFallback = (publicDir: string): void => {
   const fallbackPath = resolve(publicDir, '200.html');
   if (!existsSync(fallbackPath)) return;

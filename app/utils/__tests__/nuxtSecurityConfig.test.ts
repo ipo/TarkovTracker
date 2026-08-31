@@ -6,13 +6,48 @@ import {
   assertCloudflarePagesOutput,
   buildContentSecurityPolicyRouteRules,
   DEFAULT_NITRO_PRESET,
+  isNuxtBuildCommand,
   promoteSpaFallback,
   resolveNitroPreset,
+  shouldAssertCloudflarePagesOutput,
 } from '@/utils/nuxtSecurityConfig';
 describe('nuxtSecurityConfig', () => {
   it('uses cloudflare-pages only as the build preset fallback', () => {
     expect(resolveNitroPreset()).toBe(DEFAULT_NITRO_PRESET);
     expect(resolveNitroPreset('node-server')).toBe('node-server');
+  });
+  it('treats only explicit build and generate argv tokens as Nuxt build commands', () => {
+    expect(isNuxtBuildCommand(['node', 'nuxt', 'dev'])).toBe(false);
+    expect(isNuxtBuildCommand(['node', 'nuxt', 'build'])).toBe(true);
+    expect(isNuxtBuildCommand(['node', 'nuxt', 'generate'])).toBe(true);
+  });
+  it('skips Cloudflare Pages output assertions during nuxt dev', () => {
+    expect(
+      shouldAssertCloudflarePagesOutput({
+        isBuildCommand: false,
+        nitroPreset: 'cloudflare-pages',
+      })
+    ).toBe(false);
+    expect(
+      shouldAssertCloudflarePagesOutput({
+        isBuildCommand: false,
+        nitroPreset: 'cloudflare-dev',
+      })
+    ).toBe(false);
+  });
+  it('keeps Cloudflare Pages output assertions for build and generate', () => {
+    expect(
+      shouldAssertCloudflarePagesOutput({
+        isBuildCommand: true,
+        nitroPreset: 'cloudflare-pages',
+      })
+    ).toBe(true);
+    expect(
+      shouldAssertCloudflarePagesOutput({
+        isBuildCommand: true,
+        nitroPreset: 'node-server',
+      })
+    ).toBe(false);
   });
   it('promotes the SPA fallback to the static Pages entrypoint', () => {
     const publicDir = mkdtempSync(join(tmpdir(), 'tarkovtracker-spa-'));
