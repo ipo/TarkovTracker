@@ -39,10 +39,16 @@ IP address.
 
 With the dev server running, open
 [http://localhost:3000/tasks?view=maps](http://localhost:3000/tasks?view=maps)
-without signing in. After game data loads, the Maps tab is selected. From a
-fresh browser profile, you may still need to click a map chip such as
+without signing in. The Maps tab can be selected while the map filter is still
+**All**. **All does not display a map.** Click a specific map chip such as
 **Ground Zero** before the SVG map and objective markers appear. Map artwork
 is fetched from `https://assets.tarkov.dev/maps/svg/`.
+
+## Local progress check
+
+Still without an account, mark a task or objective complete, refresh the page,
+and confirm the change remains. Guest progress is stored only in that
+browser's `localStorage`. Clearing site data removes it.
 
 ## What `.env.example.local` is
 
