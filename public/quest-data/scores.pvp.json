@@ -1,40 +1,726 @@
 {
   "maps": [
     {
-      "english_name": "Ground Zero",
+      "english_name": "Woods",
       "finishable_here": true,
       "gateway": true,
-      "id": "ground-zero",
-      "off_goal": false,
+      "id": "woods",
+      "off_goal": true,
       "quests": [
         {
-          "english_name": "Confirmed Active",
+          "english_name": "Chumming",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "5b4795fb86f7745876267770",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Gratitude",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5ae449b386f77446d8741719",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Hiking",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "6a5c1578f2689567c30eb0f3",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Informed Means Armed",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5b47926a86f7747ccc057c15",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "One Less Loose End",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "669fa38fad7f1eac2607ed46",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Polikhim Hobo",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5979f8bb86f7743ec214c7a6",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Power of Persuasion",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "63a5cf262964a7488f5243ce",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Small Things, Big Help",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5c10f94386f774227172c572",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Steady Signal",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "6578ec473dbd035d04531a8d",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Huntsman Path - Woods Keeper",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5d25e2ee86f77443e35162ea",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Survivalist Path - Thrifty",
           "finishable_here": true,
           "gateway": true,
-          "id": "quest-active",
+          "id": "5d25b6be86f77444001e1b89",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
           "label": "gateway",
           "off_goal": false
         }
       ],
-      "score": 12.5
+      "score": 88.60685913582638
+    },
+    {
+      "english_name": "Shoreline",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "shoreline",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "Eagle Eye",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5a27b80086f774429a5d7e20",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Health Care Privacy - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5a68661a86f774500f48afb0",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Master Key",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "5a0449d586f77474e66227b7",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "No Swiping",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "658027799634223183395339",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Seizing the Initiative",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "675c1d6d59b0575973008fc7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Cult",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5a27b9de86f77464e5044585",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Thirsty - Hounds",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "665eeacf5d86b6c8aa03c79b",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Wet Job - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5a27bb8386f7741c770d2d0a",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 85.57692307692307
     },
     {
       "english_name": "Customs",
-      "finishable_here": false,
-      "gateway": false,
+      "finishable_here": true,
+      "gateway": true,
       "id": "customs",
       "off_goal": true,
       "quests": [
         {
-          "english_name": "Confirmed Failed",
+          "english_name": "Blood in the Water",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5968eb3186f7741dde183a4d",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Chemical - Part 2",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "597a0b2986f77426d66c0633",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Chemical Experiments",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5a27bafb86f7741c73584017",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Chumming",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "5b4795fb86f7745876267770",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Every Hunter Knows This",
           "finishable_here": false,
           "gateway": false,
-          "id": "quest-failed",
+          "id": "66b38e144f2ab7cc530c3fe7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Golden Swag",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5979eee086f774311955e614",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Power of Persuasion",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "63a5cf262964a7488f5243ce",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Seizing the Initiative",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "675c1d6d59b0575973008fc7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Huntsman Path - Angry Watchman",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5d25e44386f77409453bce7b",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Huntsman Path - Trophy",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5d25e2c386f77443e7549029",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Punisher - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "59c512ad86f7741f0d09de9b",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Work Smarter",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "675c1cf4a757ddd00404f0a3",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 83.58602983917845
+    },
+    {
+      "english_name": "Streets of Tarkov",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "streets-of-tarkov",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "Beyond the Red Meat",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "64f5e20652fc01298e2c61e3",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Cease Fire!",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "639136e84ed9512be67647db",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "District Patrol",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "64e7b9bffd30422ed03dad38",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Glory to CPSU",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "64f5aac4b63b74469b6c14c2",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Population Census",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "639135d89444fb141f4e6eea",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Road Closed",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "639282134ed9512be67647ed",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Secret Message",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "6a5ccda873f06065630d61b0",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Huntsman Path - Big Game",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "64e7b971f9d6fa49d6769b44",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "You've Got Mail",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "6391359b9444fb141f4e6ee6",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 63.67951947297035
+    },
+    {
+      "english_name": "Interchange",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "interchange",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "A Big Loss",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5ae4493d86f7744b8e15aa8f",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Fuel Crisis",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5ae448f286f77448d73c0131",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Informed Means Armed",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5b47926a86f7747ccc057c15",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Long Line",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "60e71dc0a94be721b065bbfc",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Make ULTRA Great Again",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5ae448bf86f7744d733e55ee",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Polikhim Hobo",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5979f8bb86f7743ec214c7a6",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Power of Persuasion",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "63a5cf262964a7488f5243ce",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 54.06413485758574
+    },
+    {
+      "english_name": "Factory",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "factory",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "All Is Revealed",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "669fa39ee749756c920d02c8",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Dragnet",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "669fa3a08b4a64b332041ff7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Every Hunter Knows This",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "66b38e144f2ab7cc530c3fe7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Exit Here",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "669fa395c4c5c04798002497",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "One Less Loose End",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "669fa38fad7f1eac2607ed46",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "One-Way Ticket",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5a03153686f77442d90e2171",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Possessor",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "669fa399033a3ce9870338a8",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 44.32280565781825
+    },
+    {
+      "english_name": "Night Factory",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "night-factory",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "All Is Revealed",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "669fa39ee749756c920d02c8",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Dragnet",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "669fa3a08b4a64b332041ff7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Every Hunter Knows This",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "66b38e144f2ab7cc530c3fe7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "One Less Loose End",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "669fa38fad7f1eac2607ed46",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "One-Way Ticket",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5a03153686f77442d90e2171",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Possessor",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "669fa399033a3ce9870338a8",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 37.59203642704902
+    },
+    {
+      "english_name": "Ground Zero",
+      "finishable_here": true,
+      "gateway": false,
+      "id": "ground-zero",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "Polikhim Hobo",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "5979f8bb86f7743ec214c7a6",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Power of Persuasion",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "63a5cf262964a7488f5243ce",
           "label": "off-goal",
           "off_goal": true
         }
       ],
-      "score": 1
+      "score": 13.461538461538462
+    },
+    {
+      "english_name": "Ground Zero Tutorial",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "ground-zero-tutorial",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 12.717981011431892
+    },
+    {
+      "english_name": "Icebreaker",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "icebreaker",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 12.717981011431892
+    },
+    {
+      "english_name": "Lighthouse",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "lighthouse",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 12.717981011431892
+    },
+    {
+      "english_name": "Reserve",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "reserve",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 12.717981011431892
+    },
+    {
+      "english_name": "The Labyrinth",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "the-labyrinth",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "Work Smarter",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "675c1cf4a757ddd00404f0a3",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 10.450978492540205
     }
   ],
   "mode": "pvp",
