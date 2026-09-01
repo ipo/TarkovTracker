@@ -36,21 +36,37 @@
         :show-fullscreen-toggle="true"
         :height="600"
       />
-      <ul class="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        <li
-          v-for="task in metadataStore.tasks"
-          :key="task.id"
-          class="border-surface-700 rounded border p-3"
-        >
-          <p class="font-medium text-white">{{ task.name }}</p>
-          <p class="text-surface-400 text-xs">{{ task.trader?.name }}</p>
-        </li>
-      </ul>
+      <section v-if="selectedMap" class="mt-6">
+        <p class="border-surface-700 bg-surface-900 rounded border p-3 text-white">
+          <span class="font-semibold">{{ t('page.tasks.map.you_need_to_bring') }}</span>
+          {{ mapQuestBringItems.join(', ') }}
+        </p>
+        <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+          <li
+            v-for="quest in selectedMapQuests"
+            :key="quest.id"
+            class="border-surface-700 rounded border p-4"
+          >
+            <h2 class="font-semibold text-white">{{ quest.name }}</h2>
+            <p v-if="quest.summary" class="text-surface-300 mt-2 text-sm">
+              {{ quest.summary }}
+            </p>
+            <ul v-else class="text-surface-300 mt-2 list-disc space-y-1 pl-5 text-sm">
+              <li v-for="objective in quest.objectives" :key="objective">{{ objective }}</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
     </template>
   </section>
 </template>
 <script setup lang="ts">
   import { buildStaticObjectiveMarks } from '@/features/maps/staticObjectiveMarks';
+  import {
+    buildMapQuestSummaries,
+    collectMapQuestBringItems,
+    parseQuestSummaries,
+  } from '@/features/tasks/mapQuestSummaries';
   import {
     getMapRecommendationButtonStyle,
     getMapRecommendationScore,
@@ -58,11 +74,15 @@
   } from '@/features/tasks/mapRecommendation';
   import { useMetadataStore } from '@/stores/useMetadata';
   import { useTarkovStore } from '@/stores/useTarkov';
+  import { logger } from '@/utils/logger';
+  import { normalizeStaticQuestBaseUrl } from '@/utils/staticQuestHydration';
   import type { TarkovMap } from '@/types/tarkov';
   useSeoMeta({ title: 'Tasks and Maps' });
   const { t } = useI18n({ useScope: 'global' });
   const metadataStore = useMetadataStore();
   const tarkovStore = useTarkovStore();
+  const runtimeConfig = useRuntimeConfig();
+  const questSummaries = shallowRef(parseQuestSummaries(''));
   const maps = computed(() =>
     sortMapsByRecommendation(metadataStore.mapsWithSvg, metadataStore.staticMapScores)
   );
@@ -82,6 +102,15 @@
     { immediate: true }
   );
   const selectedMap = computed(() => maps.value.find((map) => map.id === selectedMapId.value));
+  const selectedMapQuests = computed(() =>
+    buildMapQuestSummaries(
+      selectedMap.value,
+      metadataStore.staticMapScores,
+      metadataStore.tasks,
+      questSummaries.value
+    )
+  );
+  const mapQuestBringItems = computed(() => collectMapQuestBringItems(selectedMapQuests.value));
   const mapObjectiveMarks = computed(() =>
     buildStaticObjectiveMarks({
       activeTaskIds: metadataStore.confirmedStaticUnlockedTaskIds,
@@ -91,4 +120,17 @@
       tasks: metadataStore.tasks,
     })
   );
+  onMounted(async () => {
+    const baseUrl = normalizeStaticQuestBaseUrl(
+      String(runtimeConfig.public.staticQuestDataBaseUrl || '/quest-data')
+    );
+    try {
+      const document = await $fetch<string>(`${baseUrl}/quest_summaries.jsonl`, {
+        responseType: 'text',
+      });
+      questSummaries.value = parseQuestSummaries(document);
+    } catch (error) {
+      logger.error('[MapQuestSummaries] Failed to load quest summaries', error);
+    }
+  });
 </script>

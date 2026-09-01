@@ -13,9 +13,9 @@ export const getMapRecommendationScore = (
   scores: MapRecommendationScore[]
 ): number | null => {
   const ids = targetIds(target);
-  const matching = scores
-    .filter((score) => ids.has(score.id) && finiteScore(score.score))
-    .map((score) => score.score);
+  const matching = scores.flatMap((score) =>
+    ids.has(score.id) && finiteScore(score.score) ? [score.score] : []
+  );
   return matching.length > 0 ? Math.max(...matching) : null;
 };
 export const getMapRecommendationRelevance = (

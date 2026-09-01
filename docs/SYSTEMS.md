@@ -22,7 +22,9 @@ flowchart LR
 
 `app/utils/staticQuestHydration.ts` fetches and validates all three documents concurrently, then
 applies the bundle through `app/stores/tarkov/staticQuestStoreBridge.ts`. The metadata plugin starts
-the initial load. Progress is kept in browser storage.
+the initial load. Progress is kept in browser storage. The map page separately loads the optional
+`quest_summaries.jsonl` document from the same base URL. It uses summaries and bring-item lists when
+present, while quests missing from that document fall back to their task title and objectives.
 
 ### Invariants
 
@@ -35,5 +37,6 @@ the initial load. Progress is kept in browser storage.
   quest objectives remain present with an empty quest list and a score of zero.
 - A generation fence prevents an earlier, slower mode load from overwriting the current selection.
 - PvP and Seasonal request the `pvp` documents; PvE requests the `pve` documents.
+- A missing or malformed quest summary document never blocks map rendering or quest fallbacks.
 - The running viewer has no server API, authentication, synchronization, database, worker, or
   precomputation path.
