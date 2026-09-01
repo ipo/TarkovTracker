@@ -1,6 +1,10 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useMetadataStore } from '@/stores/useMetadata';
+vi.mock('@/utils/staticQuestHydration', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/staticQuestHydration')>()),
+  isStaticQuestModeEnabled: () => true,
+}));
 describe('useMetadataStore static quest mode', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -10,7 +14,6 @@ describe('useMetadataStore static quest mode', () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('$fetch', fetchMock);
     const store = useMetadataStore();
-    store.staticQuestModeActive = true;
     store.tasks = [{ id: 'task', objectives: [] }];
     await Promise.all([
       store.checkCachePurge(),

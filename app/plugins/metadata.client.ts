@@ -5,6 +5,7 @@ import { logger } from '@/utils/logger';
 import {
   applyStaticQuestHydration,
   createStaticQuestHydrator,
+  isStaticQuestModeEnabled,
   loadStaticQuestHydration,
 } from '@/utils/staticQuestHydration';
 import type { GameMode } from '@/utils/constants';
@@ -37,8 +38,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     '/terms-of-service',
   ];
   const runtimeConfig = useRuntimeConfig();
-  if (runtimeConfig.public.staticQuestMode === true) {
-    metadataStore.staticQuestModeActive = true;
+  if (isStaticQuestModeEnabled()) {
     const baseUrl = String(runtimeConfig.public.staticQuestDataBaseUrl || '/quest-data');
     const hydrateLatest = createStaticQuestHydrator(
       (mode) => loadStaticQuestHydration(baseUrl, mode, (url) => $fetch(url)),

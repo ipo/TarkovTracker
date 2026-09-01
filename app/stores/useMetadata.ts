@@ -36,6 +36,7 @@ import { perfEnd, perfStart } from '@/utils/perf';
 import { inferNewBeginningPrestigeLevel } from '@/utils/prestige';
 import {
   isStaticQuestMode,
+  isStaticQuestModeEnabled,
   type StaticQuestFileMode,
   type StaticQuestMapScore,
 } from '@/utils/staticQuestHydration';
@@ -139,7 +140,6 @@ interface MetadataState {
   staticMapData: StaticMapData | null;
   staticMapScores: StaticQuestMapScore[];
   staticQuestFileMode: StaticQuestFileMode | null;
-  staticQuestModeActive: boolean;
   // Processed data
   taskGraph: TaskGraph;
   taskById: Map<string, Task>;
@@ -212,7 +212,6 @@ export const useMetadataStore = defineStore('metadata', {
     staticMapData: null,
     staticMapScores: markRaw([]),
     staticQuestFileMode: null,
-    staticQuestModeActive: false,
     taskGraph: markRaw(createGraph()),
     taskById: markRaw(new Map<string, Task>()),
     hideoutGraph: markRaw(createGraph()),
@@ -538,7 +537,7 @@ export const useMetadataStore = defineStore('metadata', {
       promiseRequestKey?: string;
       throwOnError?: boolean;
     }): Promise<void> {
-      if (this.staticQuestModeActive && config.endpoint.startsWith('/api/tarkov/')) return;
+      if (isStaticQuestModeEnabled() && config.endpoint.startsWith('/api/tarkov/')) return;
       const { promiseKey, promiseRequestKey, forceRefresh = false } = config;
       if (promiseKey) {
         const promises = getPromiseStore(this);
@@ -774,7 +773,7 @@ export const useMetadataStore = defineStore('metadata', {
      * Check if the server has purged cache and clear local cache if needed.
      */
     async checkCachePurge(): Promise<void> {
-      if (this.staticQuestModeActive) return;
+      if (isStaticQuestModeEnabled()) return;
       if (typeof window === 'undefined') return;
       const now = Date.now();
       const storedCheckRaw = localStorage.getItem(CACHE_PURGE_CHECK_STORAGE_KEY);
@@ -840,7 +839,7 @@ export const useMetadataStore = defineStore('metadata', {
         } | null;
       } = {}
     ) {
-      if (this.staticQuestModeActive) {
+      if (isStaticQuestModeEnabled()) {
         const mode = isStaticQuestMode(this.currentGameMode)
           ? this.currentGameMode
           : GAME_MODES.PVP;
@@ -1059,7 +1058,7 @@ export const useMetadataStore = defineStore('metadata', {
       return this.fetchPersistentObjectiveModeCountDifferences(forceRefresh);
     },
     async fetchPersistentObjectiveModeCountDifferences(forceRefresh = false) {
-      if (this.staticQuestModeActive) {
+      if (isStaticQuestModeEnabled()) {
         this.objectiveModeCountDifferences = markRaw({});
         this.objectiveModeCountDifferencesHydrated = true;
         return;

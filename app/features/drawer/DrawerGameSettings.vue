@@ -66,9 +66,9 @@
     type PMCFaction,
   } from '@/utils/constants';
   import { logger } from '@/utils/logger';
+  import { isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
   const metadataStore = useMetadataStore();
   const tarkovStore = useTarkovStore();
-  const runtimeConfig = useRuntimeConfig();
   const { t } = useI18n({ useScope: 'global' });
   const switchModeError = ref('');
   const seasonCountdownNow = ref(Date.now());
@@ -147,7 +147,7 @@
         metadataStore.setLoading(false);
         return;
       }
-      if (runtimeConfig.public.staticQuestMode === true) return;
+      if (isStaticQuestModeEnabled()) return;
       try {
         metadataStore.updateLanguageAndGameMode();
         await metadataStore.fetchAllData();

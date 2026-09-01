@@ -9,6 +9,7 @@ import {
   useTarkovStore,
 } from '@/stores/useTarkov';
 import { logger } from '@/utils/logger';
+import { isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 interface AccountActivityResponse {
   recorded: boolean;
 }
@@ -23,7 +24,6 @@ export function useAppInitialization() {
   const activityLogStore = useActivityLogStore();
   const metadataStore = useMetadataStore();
   const preferencesStore = usePreferencesStore();
-  const runtimeConfig = useRuntimeConfig();
   const supporter = useSupporter();
   const { availableLocales, locale, setLocale } = useI18n({ useScope: 'global' });
   const { showLoadFailed } = useToastI18n();
@@ -35,7 +35,7 @@ export function useAppInitialization() {
     if (!metadataStore.hasInitialized || metadataStore.languageCode === previousLanguageCode) {
       return;
     }
-    if (runtimeConfig.public.staticQuestMode === true) return;
+    if (isStaticQuestModeEnabled()) return;
     try {
       await metadataStore.fetchAllData(false);
     } catch (error) {

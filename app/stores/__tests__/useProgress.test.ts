@@ -2,6 +2,11 @@ import { createPinia, setActivePinia } from 'pinia';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
 import { TASK_ID_REGISTRY } from '@/utils/constants';
+const staticQuestRuntime = vi.hoisted(() => ({ enabled: false }));
+vi.mock('@/utils/staticQuestHydration', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/staticQuestHydration')>()),
+  isStaticQuestModeEnabled: () => staticQuestRuntime.enabled,
+}));
 type TraderProgress = Record<string, { level?: number; reputation?: number }>;
 const createProgressData = (
   taskCompletions: Record<string, unknown>,
@@ -61,6 +66,7 @@ const setupMocks = ({
   confirmedStaticUnlockedTaskIds?: string[];
 }) => {
   vi.resetModules();
+  staticQuestRuntime.enabled = staticQuestMode;
   setActivePinia(createPinia());
   const selfStore = {
     $state: selfState ?? createStoreState({ pvpCompletions: selfCompletions }),
@@ -91,7 +97,6 @@ const setupMocks = ({
       playerLevels: [],
       editions: [],
       confirmedStaticUnlockedTaskIds,
-      staticQuestModeActive: staticQuestMode,
     }),
   }));
   vi.doMock('@/stores/useTarkov', () => ({

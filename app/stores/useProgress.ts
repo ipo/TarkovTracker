@@ -14,6 +14,7 @@ import { logger } from '@/utils/logger';
 import { perfEnd, perfStart } from '@/utils/perf';
 import { computeInvalidProgress } from '@/utils/progressInvalidation';
 import { createDefaultOwnedProgressData } from '@/utils/progressSanitizers';
+import { isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 import {
   getCompletionFlags,
   getTaskStatusFromFlags,
@@ -164,7 +165,7 @@ export const useProgressStore = defineStore('progress', () => {
       tasks: metadataStore.tasks.length,
     });
     const available: TaskAvailabilityMap = {};
-    if (metadataStore.staticQuestModeActive) {
+    if (isStaticQuestModeEnabled()) {
       for (const taskId of metadataStore.confirmedStaticUnlockedTaskIds) {
         available[taskId] = { self: true };
       }
