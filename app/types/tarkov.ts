@@ -315,6 +315,7 @@ export interface MapTileConfig {
 }
 export interface TarkovMap {
   id: string;
+  mergedIds?: string[];
   name: string;
   normalizedName?: string;
   spawns?: MapSpawn[];

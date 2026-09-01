@@ -282,23 +282,8 @@
     },
     "5a0449d586f77474e66227b7": {
       "id": "5a0449d586f77474e66227b7",
-      "objectives": [
-        {
-          "completed": false,
-          "id": "5a044a6c86f7747370402d91",
-          "optional": false,
-          "pending": true,
-          "required": true
-        },
-        {
-          "completed": false,
-          "id": "5a280f8d86f774141b501756",
-          "optional": false,
-          "pending": true,
-          "required": true
-        }
-      ],
-      "status": "active"
+      "objectives": [],
+      "status": "completed"
     },
     "5a27b75b86f7742e97191958": {
       "id": "5a27b75b86f7742e97191958",
@@ -312,45 +297,50 @@
     },
     "5a27b80086f774429a5d7e20": {
       "id": "5a27b80086f774429a5d7e20",
+      "objectives": [],
+      "status": "completed"
+    },
+    "5a27b87686f77460de0252a8": {
+      "id": "5a27b87686f77460de0252a8",
       "objectives": [
         {
           "completed": false,
-          "id": "5a3ba34286f7744eb240406a",
+          "id": "5a28017786f77452f6318b1b",
           "optional": false,
           "pending": true,
           "required": true
         },
         {
           "completed": false,
-          "id": "5a294f1686f774340c7b7e4a",
+          "id": "5a3ba47986f7744df8667505",
+          "optional": true,
+          "pending": true,
+          "required": false
+        },
+        {
+          "completed": false,
+          "id": "5a2801f986f774531b679875",
           "optional": false,
           "pending": true,
           "required": true
         },
         {
           "completed": false,
-          "id": "5a27ffb186f774192932b3d5",
+          "id": "5a3ba4ba86f7744df759b1e5",
+          "optional": true,
+          "pending": true,
+          "required": false
+        },
+        {
+          "completed": false,
+          "id": "5cb5fd3d86f7746ef64ca33c",
           "optional": false,
           "pending": true,
           "required": true
         },
         {
           "completed": false,
-          "id": "5a27ffc786f77415ca58ae47",
-          "optional": false,
-          "pending": true,
-          "required": true
-        },
-        {
-          "completed": false,
-          "id": "5a3ba3b086f7745ab1081101",
-          "optional": false,
-          "pending": true,
-          "required": true
-        },
-        {
-          "completed": false,
-          "id": "5a294f3386f77433e923f9cd",
+          "id": "5a28023f86f774528903dd1e",
           "optional": false,
           "pending": true,
           "required": true
@@ -360,23 +350,8 @@
     },
     "5a27b9de86f77464e5044585": {
       "id": "5a27b9de86f77464e5044585",
-      "objectives": [
-        {
-          "completed": false,
-          "id": "5a3ba51d86f7743af1475c3a",
-          "optional": false,
-          "pending": true,
-          "required": true
-        },
-        {
-          "completed": false,
-          "id": "5a28051286f7740eb10bac04",
-          "optional": false,
-          "pending": true,
-          "required": true
-        }
-      ],
-      "status": "active"
+      "objectives": [],
+      "status": "completed"
     },
     "5a27bafb86f7741c73584017": {
       "id": "5a27bafb86f7741c73584017",
@@ -406,31 +381,29 @@
     },
     "5a68661a86f774500f48afb0": {
       "id": "5a68661a86f774500f48afb0",
+      "objectives": [],
+      "status": "completed"
+    },
+    "5a68663e86f774501078f78a": {
+      "id": "5a68663e86f774501078f78a",
       "objectives": [
         {
           "completed": false,
-          "id": "5a6873bc86f7741f8d4589a3",
+          "id": "5a68760f86f7743cc55d8709",
           "optional": false,
           "pending": true,
           "required": true
         },
         {
           "completed": false,
-          "id": "5a6873d786f7743ad1151d6e",
+          "id": "5a68763786f77474c33a40a1",
           "optional": false,
           "pending": true,
           "required": true
         },
         {
           "completed": false,
-          "id": "5a6873ec86f7743cc55d8622",
-          "optional": false,
-          "pending": true,
-          "required": true
-        },
-        {
-          "completed": false,
-          "id": "6a6072ab2b1e6883ea9d9311",
+          "id": "5a68764c86f77474c4269f3c",
           "optional": false,
           "pending": true,
           "required": true
@@ -868,6 +841,33 @@
         {
           "completed": false,
           "id": "639135d89444fb141f4e6eec",
+          "optional": false,
+          "pending": true,
+          "required": true
+        }
+      ],
+      "status": "active"
+    },
+    "639135f286e646067c176a87": {
+      "id": "639135f286e646067c176a87",
+      "objectives": [
+        {
+          "completed": false,
+          "id": "63927f14744e452011470816",
+          "optional": false,
+          "pending": true,
+          "required": true
+        },
+        {
+          "completed": false,
+          "id": "63927f2d8ba6894d155e77e6",
+          "optional": false,
+          "pending": true,
+          "required": true
+        },
+        {
+          "completed": false,
+          "id": "63927f349444fb141f4e6f24",
           "optional": false,
           "pending": true,
           "required": true

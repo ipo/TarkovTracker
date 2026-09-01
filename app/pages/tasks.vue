@@ -8,16 +8,21 @@
         <UButton
           v-for="map in maps"
           :key="map.id"
-          :color="selectedMapId === map.id ? 'primary' : 'neutral'"
-          :variant="selectedMapId === map.id ? 'soft' : 'ghost'"
+          color="neutral"
+          variant="outline"
+          :class="selectedMapId === map.id ? 'ring-2 ring-white/70' : ''"
+          :style="
+            getMapRecommendationButtonStyle(
+              map,
+              metadataStore.staticMapScores,
+              selectedMapId === map.id
+            )
+          "
           @click="selectedMapId = map.id"
         >
           {{ map.name }}
-          <span
-            v-if="getMapRecommendationTier(map.id, metadataStore.staticMapScores) === 'primary'"
-          >
-            ★
-          </span>
+          <span v-if="map.id === topRecommendedMapId">★</span>
+          <span class="text-xs tabular-nums opacity-80">{{ getMapScoreLabel(map) }}</span>
         </UButton>
       </div>
       <LeafletMap
@@ -46,14 +51,26 @@
 </template>
 <script setup lang="ts">
   import { buildStaticObjectiveMarks } from '@/features/maps/staticObjectiveMarks';
-  import { getMapRecommendationTier } from '@/features/tasks/mapRecommendation';
+  import {
+    getMapRecommendationButtonStyle,
+    getMapRecommendationScore,
+    sortMapsByRecommendation,
+  } from '@/features/tasks/mapRecommendation';
   import { useMetadataStore } from '@/stores/useMetadata';
   import { useTarkovStore } from '@/stores/useTarkov';
+  import type { TarkovMap } from '@/types/tarkov';
   useSeoMeta({ title: 'Tasks and Maps' });
   const { t } = useI18n({ useScope: 'global' });
   const metadataStore = useMetadataStore();
   const tarkovStore = useTarkovStore();
-  const maps = computed(() => metadataStore.mapsWithSvg);
+  const maps = computed(() =>
+    sortMapsByRecommendation(metadataStore.mapsWithSvg, metadataStore.staticMapScores)
+  );
+  const topRecommendedMapId = computed(() => maps.value[0]?.id ?? null);
+  const getMapScoreLabel = (map: TarkovMap): string => {
+    const score = getMapRecommendationScore(map, metadataStore.staticMapScores);
+    return score === null ? '—' : score.toFixed(1);
+  };
   const selectedMapId = ref<string | null>(null);
   watch(
     maps,

@@ -30,7 +30,9 @@ the initial load. Progress is kept in browser storage.
   mixed bundle applies nothing.
 - `state.<file-mode>.json` alone determines confirmed and active task progress. Catalog-only tasks
   never become available or create markers.
-- Scores preserve ordering, recommendation flags, and zone geometry for maps.
+- Scores contain every non-excluded catalog map, preserve descending relevance order and relative
+  numeric values, and retain recommendation flags and zone geometry. Maps without active required
+  quest objectives remain present with an empty quest list and a score of zero.
 - A generation fence prevents an earlier, slower mode load from overwriting the current selection.
 - PvP and Seasonal request the `pvp` documents; PvE requests the `pve` documents.
 - The running viewer has no server API, authentication, synchronization, database, worker, or

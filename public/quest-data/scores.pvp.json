@@ -104,89 +104,7 @@
           "off_goal": false
         }
       ],
-      "score": 88.60685913582638
-    },
-    {
-      "english_name": "Shoreline",
-      "finishable_here": true,
-      "gateway": true,
-      "id": "shoreline",
-      "off_goal": true,
-      "quests": [
-        {
-          "english_name": "Eagle Eye",
-          "finishable_here": false,
-          "gateway": false,
-          "id": "5a27b80086f774429a5d7e20",
-          "label": "off-goal",
-          "off_goal": true
-        },
-        {
-          "english_name": "Health Care Privacy - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5a68661a86f774500f48afb0",
-          "label": "gateway",
-          "off_goal": false
-        },
-        {
-          "english_name": "Master Key",
-          "finishable_here": false,
-          "gateway": true,
-          "id": "5a0449d586f77474e66227b7",
-          "label": "gateway",
-          "off_goal": false
-        },
-        {
-          "english_name": "No Swiping",
-          "finishable_here": true,
-          "gateway": false,
-          "id": "658027799634223183395339",
-          "label": "off-goal",
-          "off_goal": true
-        },
-        {
-          "english_name": "Seizing the Initiative",
-          "finishable_here": false,
-          "gateway": false,
-          "id": "675c1d6d59b0575973008fc7",
-          "label": "off-goal",
-          "off_goal": true
-        },
-        {
-          "english_name": "The Cult",
-          "finishable_here": true,
-          "gateway": false,
-          "id": "5a27b9de86f77464e5044585",
-          "label": "off-goal",
-          "off_goal": true
-        },
-        {
-          "english_name": "The Tarkov Shooter - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5bc4776586f774512d07cf05",
-          "label": "gateway",
-          "off_goal": false
-        },
-        {
-          "english_name": "Thirsty - Hounds",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "665eeacf5d86b6c8aa03c79b",
-          "label": "gateway",
-          "off_goal": false
-        },
-        {
-          "english_name": "Wet Job - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5a27bb8386f7741c770d2d0a",
-          "label": "gateway",
-          "off_goal": false
-        }
-      ],
-      "score": 85.57692307692307
+      "score": 92.86280729579698
     },
     {
       "english_name": "Customs",
@@ -300,7 +218,7 @@
           "off_goal": false
         }
       ],
-      "score": 83.58602983917845
+      "score": 89.16534496431403
     },
     {
       "english_name": "Streets of Tarkov",
@@ -350,6 +268,14 @@
           "off_goal": true
         },
         {
+          "english_name": "Revision - Streets of Tarkov",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "639135f286e646067c176a87",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
           "english_name": "Road Closed",
           "finishable_here": true,
           "gateway": false,
@@ -390,7 +316,73 @@
           "off_goal": false
         }
       ],
-      "score": 63.67951947297035
+      "score": 76.43735130848532
+    },
+    {
+      "english_name": "Shoreline",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "shoreline",
+      "off_goal": true,
+      "quests": [
+        {
+          "english_name": "Health Care Privacy - Part 2",
+          "finishable_here": false,
+          "gateway": true,
+          "id": "5a68663e86f774501078f78a",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Humanitarian Supplies",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "5a27b87686f77460de0252a8",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "No Swiping",
+          "finishable_here": true,
+          "gateway": false,
+          "id": "658027799634223183395339",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "Seizing the Initiative",
+          "finishable_here": false,
+          "gateway": false,
+          "id": "675c1d6d59b0575973008fc7",
+          "label": "off-goal",
+          "off_goal": true
+        },
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Thirsty - Hounds",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "665eeacf5d86b6c8aa03c79b",
+          "label": "gateway",
+          "off_goal": false
+        },
+        {
+          "english_name": "Wet Job - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5a27bb8386f7741c770d2d0a",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 62.5
     },
     {
       "english_name": "Interchange",
@@ -464,7 +456,7 @@
           "off_goal": false
         }
       ],
-      "score": 54.06413485758574
+      "score": 56.24504361617764
     },
     {
       "english_name": "Factory",
@@ -538,7 +530,7 @@
           "off_goal": false
         }
       ],
-      "score": 44.32280565781825
+      "score": 47.85884218873909
     },
     {
       "english_name": "Night Factory",
@@ -604,7 +596,79 @@
           "off_goal": false
         }
       ],
-      "score": 37.59203642704902
+      "score": 41.12807295796986
+    },
+    {
+      "english_name": "Ground Zero Tutorial",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "ground-zero-tutorial",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 14.898889770023791
+    },
+    {
+      "english_name": "Icebreaker",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "icebreaker",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 14.898889770023791
+    },
+    {
+      "english_name": "Lighthouse",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "lighthouse",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 14.898889770023791
+    },
+    {
+      "english_name": "Reserve",
+      "finishable_here": true,
+      "gateway": true,
+      "id": "reserve",
+      "off_goal": false,
+      "quests": [
+        {
+          "english_name": "The Tarkov Shooter - Part 1",
+          "finishable_here": true,
+          "gateway": true,
+          "id": "5bc4776586f774512d07cf05",
+          "label": "gateway",
+          "off_goal": false
+        }
+      ],
+      "score": 14.898889770023791
     },
     {
       "english_name": "Ground Zero",
@@ -633,78 +697,6 @@
       "score": 13.461538461538462
     },
     {
-      "english_name": "Ground Zero Tutorial",
-      "finishable_here": true,
-      "gateway": true,
-      "id": "ground-zero-tutorial",
-      "off_goal": false,
-      "quests": [
-        {
-          "english_name": "The Tarkov Shooter - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5bc4776586f774512d07cf05",
-          "label": "gateway",
-          "off_goal": false
-        }
-      ],
-      "score": 12.717981011431892
-    },
-    {
-      "english_name": "Icebreaker",
-      "finishable_here": true,
-      "gateway": true,
-      "id": "icebreaker",
-      "off_goal": false,
-      "quests": [
-        {
-          "english_name": "The Tarkov Shooter - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5bc4776586f774512d07cf05",
-          "label": "gateway",
-          "off_goal": false
-        }
-      ],
-      "score": 12.717981011431892
-    },
-    {
-      "english_name": "Lighthouse",
-      "finishable_here": true,
-      "gateway": true,
-      "id": "lighthouse",
-      "off_goal": false,
-      "quests": [
-        {
-          "english_name": "The Tarkov Shooter - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5bc4776586f774512d07cf05",
-          "label": "gateway",
-          "off_goal": false
-        }
-      ],
-      "score": 12.717981011431892
-    },
-    {
-      "english_name": "Reserve",
-      "finishable_here": true,
-      "gateway": true,
-      "id": "reserve",
-      "off_goal": false,
-      "quests": [
-        {
-          "english_name": "The Tarkov Shooter - Part 1",
-          "finishable_here": true,
-          "gateway": true,
-          "id": "5bc4776586f774512d07cf05",
-          "label": "gateway",
-          "off_goal": false
-        }
-      ],
-      "score": 12.717981011431892
-    },
-    {
       "english_name": "The Labyrinth",
       "finishable_here": true,
       "gateway": true,
@@ -720,7 +712,34 @@
           "off_goal": false
         }
       ],
-      "score": 10.450978492540205
+      "score": 11.80610626486915
+    },
+    {
+      "english_name": "Terminal",
+      "finishable_here": false,
+      "gateway": false,
+      "id": "terminal",
+      "off_goal": false,
+      "quests": [],
+      "score": 0.0
+    },
+    {
+      "english_name": "The Lab",
+      "finishable_here": false,
+      "gateway": false,
+      "id": "the-lab",
+      "off_goal": false,
+      "quests": [],
+      "score": 0.0
+    },
+    {
+      "english_name": "The Lab (Dark)",
+      "finishable_here": false,
+      "gateway": false,
+      "id": "the-lab-dark",
+      "off_goal": false,
+      "quests": [],
+      "score": 0.0
     }
   ],
   "mode": "pvp",
