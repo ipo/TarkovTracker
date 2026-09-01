@@ -13,7 +13,7 @@ pnpm install
 pnpm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The bundled fixtures load from
+Open [http://localhost:8046](http://localhost:8046). The bundled fixtures load from
 `/quest-data`; task and objective progress persists in that browser's `localStorage`.
 
 To use an exporter directory hosted elsewhere, optionally copy `.env.example` to `.env` and set
@@ -23,6 +23,6 @@ For LAN access, run `pnpm run dev -- --host 0.0.0.0` and open the host's LAN add
 
 ## Maps check
 
-Open [http://localhost:3000/tasks?view=maps](http://localhost:3000/tasks?view=maps), choose a
+Open [http://localhost:8046/tasks?view=maps](http://localhost:8046/tasks?view=maps), choose a
 specific map, and verify its SVG and objective markers render. The **All** map filter intentionally
 does not select a map.

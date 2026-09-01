@@ -30,7 +30,7 @@ const normalizePublicAppUrl = (value: string): string => {
 export const resolvePublicAppUrl = (env: NodeJS.ProcessEnv): string => {
   const configuredUrl = resolveEnvValue(env.APP_URL, env.CF_PAGES_URL);
   if (!configuredUrl) {
-    return 'http://localhost:3000';
+    return 'http://localhost:8046';
   }
   return normalizePublicAppUrl(configuredUrl);
 };

@@ -11,7 +11,8 @@
 
 ## Commands
 
-Install: `pnpm install` | Dev: `pnpm run dev` | Build: `pnpm run build` | Preview: `pnpm run preview`
+Install: `pnpm install` | Dev: `pnpm run dev` (localhost:8046) | Build: `pnpm run build` |
+Preview: `pnpm run preview`
 
 Test: `pnpm run test` | Single file: `pnpm exec vitest run path/to/file.test.ts`
 

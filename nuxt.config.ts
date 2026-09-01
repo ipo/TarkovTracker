@@ -7,10 +7,11 @@ export default defineNuxtConfig({
   telemetry: false,
   ssr: false,
   srcDir: 'app',
+  devServer: { port: 8046 },
   ignore: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
   runtimeConfig: {
     public: {
-      appUrl: process.env.APP_URL || 'http://localhost:3000',
+      appUrl: process.env.APP_URL || 'http://localhost:8046',
       appVersion: process.env.npm_package_version || 'dev',
       staticQuestDataBaseUrl:
         process.env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || '/quest-data',

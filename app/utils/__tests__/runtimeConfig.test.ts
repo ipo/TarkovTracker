@@ -47,7 +47,7 @@ describe('resolvePublicAppUrl', () => {
     ).toBe('https://deploy-preview.pages.dev');
   });
   it('falls back to localhost when no deployment url exists', () => {
-    expect(resolvePublicAppUrl({})).toBe('http://localhost:3000');
+    expect(resolvePublicAppUrl({})).toBe('http://localhost:8046');
   });
 });
 describe('resolveCanonicalSiteUrl', () => {

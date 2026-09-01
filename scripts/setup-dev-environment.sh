@@ -96,7 +96,7 @@ main() {
     echo ""
     echo "Next steps:"
     echo "1. Run 'pnpm run dev' to start the development server"
-    echo "2. Visit http://localhost:3000"
+    echo "2. Visit http://localhost:8046"
     echo ""
     echo "For CI/CD (maintainers):"
     echo "  Configure these GitHub secrets:"

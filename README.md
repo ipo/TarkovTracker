@@ -11,6 +11,8 @@ pnpm install
 pnpm run dev
 ```
 
+The development server listens on [http://localhost:8046](http://localhost:8046) by default.
+
 The bundled `/quest-data` fixtures are the default. To load an external exporter directory, copy
 `.env.example` to `.env` and set `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL`.
 
