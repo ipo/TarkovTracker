@@ -1,56 +1,17 @@
 # TarkovTracker
 
-> TarkovTracker is a Nuxt 4 single-page app for tracking Escape from Tarkov progression (tasks, hideout, storyline, needed items), with optional account sync, shared profiles, and team collaboration.
+TarkovTracker is a Nuxt 4 static single-page app for planning Escape from Tarkov tasks and maps.
+Progress is stored locally in the browser.
 
-This site is primarily a client app plus JSON APIs. Public game data is available under `/api/tarkov/*` and is proxied from tarkov.dev with overlay fixes and edge caching. API endpoints are intended for direct programmatic access, not crawling.
+The viewer reads matching schema-v1 `tasks`, `state`, and `scores` JSON documents from
+`/quest-data` or a configured static exporter base. It has no application API or account system.
 
-For API requests, use `lang` and `gameMode` where supported. Common `gameMode` values are `regular` (PvP) and `pve`. Supported `lang` values: `cs`, `de`, `en`, `es`, `fr`, `hu`, `it`, `ja`, `ko`, `pl`, `pt`, `ro`, `ru`, `sk`, `tr`, `zh`. Unsupported values fall back to `en`.
+## Primary page
 
-UI locales (separate from the API `lang` set): `cs`, `de`, `en`, `es`, `fr`, `it`, `ko`, `pl`, `pt`, `ru`, `uk`, `zh`.
+- [Tasks](https://tarkovtracker.org/tasks): Task planning and interactive maps.
 
-Authentication-required areas include `/account`, `/profile`, `/team`, `/settings`, and authenticated team APIs.
+## Documentation
 
-Crawl and discovery directives live at `/robots.txt` and `/sitemap.xml`; see those files for the canonical list of indexable public pages.
-
-## Primary Pages
-
-- [Home](https://tarkovtracker.org/): App entry point and overview.
-- [Tasks](https://tarkovtracker.org/tasks): Quest and objective tracking.
-- [Hideout](https://tarkovtracker.org/hideout): Hideout modules, upgrades, and requirements.
-- [Needed Items](https://tarkovtracker.org/needed-items): Consolidated item requirements.
-- [Storyline](https://tarkovtracker.org/storyline): Storyline quest view.
-- [Resources](https://tarkovtracker.org/resources): Community tools hub and setup guides.
-- [Tarkov.dev Guide](https://tarkovtracker.org/resources/tarkovdev): Using Tarkov.dev data via the json.tarkov.dev JSON API.
-- [TarkovMonitor Guide](https://tarkovtracker.org/resources/tarkovmonitor): Install and link TarkovMonitor to TarkovTracker.
-- [RatScanner Guide](https://tarkovtracker.org/resources/ratscanner): Install and use RatScanner overlays.
-- [CultistCircle Guide](https://tarkovtracker.org/resources/cultistcircle): Cultist Circle recipe calculator reference.
-- [Changelog](https://tarkovtracker.org/changelog): Product and feature updates.
-
-## Public JSON APIs
-
-- [Bootstrap](https://tarkovtracker.org/api/tarkov/bootstrap): Minimal level/xp bootstrap data. Accepts `lang`, `gameMode`.
-- [Tasks Core](https://tarkovtracker.org/api/tarkov/tasks-core): Core task, map, and trader data. Accepts `lang`, `gameMode`.
-- [Tasks Objectives](https://tarkovtracker.org/api/tarkov/tasks-objectives): Task objectives and fail conditions. Accepts `lang`, `gameMode`.
-- [Tasks Rewards](https://tarkovtracker.org/api/tarkov/tasks-rewards): Task reward payloads. Accepts `lang`, `gameMode`.
-- [Hideout API](https://tarkovtracker.org/api/tarkov/hideout): Hideout stations, requirements, and crafts. Accepts `lang`, `gameMode`.
-- [Items Lite](https://tarkovtracker.org/api/tarkov/items-lite): Lightweight item index. Accepts `lang`, `gameMode`.
-- [Items Full](https://tarkovtracker.org/api/tarkov/items): Full item data. Accepts `lang`, `gameMode`.
-- [Map Spawns](https://tarkovtracker.org/api/tarkov/map-spawns): Spawn/location data. Accepts `lang`, `gameMode`.
-- [Prestige](https://tarkovtracker.org/api/tarkov/prestige): Prestige requirement data. Accepts `lang`.
-- [Cache Metadata](https://tarkovtracker.org/api/tarkov/cache-meta): Cache purge timestamp metadata.
-- [Contributors](https://tarkovtracker.org/api/contributors): Contributor listing.
-- [Changelog API](https://tarkovtracker.org/api/changelog): Changelog data feed. Accepts `limit` (1-50, default 10) and `releases` (1-10, default 3).
-
-## Markdown Docs
-
-- [Project README](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/README.md): High-level project summary and setup.
-- [Architecture](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/docs/ARCHITECTURE.md): System architecture and feature design.
-- [API Documentation](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/docs/API.md): Route-level API behavior, params, and auth notes.
-- [Runbook](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/docs/runbook.md): Operational and incident procedures.
-- [Documentation Index](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/docs/README.md): Navigation for technical docs.
-
-## Optional
-
-- [Credits](https://tarkovtracker.org/credits): Team and contributor acknowledgements.
-- [Privacy Policy](https://tarkovtracker.org/privacy): Privacy terms.
-- [Terms of Service](https://tarkovtracker.org/terms-of-service): Service terms.
+- [Project README](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/README.md)
+- [Static data contract](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/docs/API.md)
+- [System invariants](https://raw.githubusercontent.com/tarkovtracker-org/TarkovTracker/main/docs/SYSTEMS.md)

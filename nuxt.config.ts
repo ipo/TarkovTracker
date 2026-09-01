@@ -1,125 +1,7 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-import { readdirSync, readFileSync, writeFileSync, type Dirent } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { resolveTrustProxySetting } from './app/utils/apiProtectionConfig';
-import { ENTRY_RECOVERY_SCRIPT } from './app/utils/entryRecoveryScript';
+import { resolve } from 'node:path';
 import { SUPPORTED_LOCALES } from './app/utils/locales';
-import {
-  assertCloudflarePagesOutput,
-  buildContentSecurityPolicyRouteRules,
-  isNuxtBuildCommand,
-  promoteSpaFallback,
-  resolveNitroPreset,
-  shouldAssertCloudflarePagesOutput,
-} from './app/utils/nuxtSecurityConfig';
-import {
-  GITHUB_IMAGE_DOMAINS,
-  resolveClientLogSinkUrl,
-  resolvePublicAppUrl,
-  resolveSupabaseRuntimeConfig,
-  TARKOV_IMAGE_DOMAINS,
-  YOUTUBE_IMAGE_DOMAINS,
-} from './app/utils/runtimeConfig';
-import {
-  SHELL_DESKTOP_BREAKPOINT_PX,
-  SHELL_DRAWER_COLLAPSED_WIDTH,
-  SHELL_DRAWER_EXPANDED_WIDTH,
-  SHELL_DRAWER_RAIL_STORAGE_KEY,
-} from './app/utils/shellConfig';
-import { stripBareNodeImports } from './app/utils/stripBareNodeImports';
-import { TURNSTILE_TEST_SECRET_KEY, TURNSTILE_TEST_SITE_KEY } from './app/utils/turnstileKeys';
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const appDir = resolve(__dirname, 'app');
-const testsDir = resolve(__dirname, 'tests');
-const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
-const appVersion = packageJson.version ?? 'dev';
-const clientLogSinkUrl = resolveClientLogSinkUrl(process.env);
-const staticQuestDataBaseUrl =
-  process.env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || '/quest-data';
-const isNonProduction = process.env.NODE_ENV !== 'production';
-const CONFIGURED_NITRO_PRESET = process.env.NITRO_PRESET;
-const NITRO_PRESET = resolveNitroPreset(CONFIGURED_NITRO_PRESET);
-const PUBLIC_APP_URL = resolvePublicAppUrl(process.env);
-const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production';
-const GOOGLE_ANALYTICS_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || '';
-const MICROSOFT_CLARITY_PROJECT_ID = process.env.CLARITY_PROJECT_ID || '';
-const {
-  privateAnonKey: PRIVATE_SUPABASE_ANON_KEY,
-  privateUrl: PRIVATE_SUPABASE_URL,
-  publicAnonKey: PUBLIC_SUPABASE_ANON_KEY,
-  publicUrl: PUBLIC_SUPABASE_URL,
-} = resolveSupabaseRuntimeConfig(process.env);
-const STRIPE_PRICE_KEYS = [
-  'STRIPE_PRICE_SCAV_MONTHLY',
-  'STRIPE_PRICE_SCAV_6MONTH',
-  'STRIPE_PRICE_SCAV_YEARLY',
-  'STRIPE_PRICE_TIMMY_MONTHLY',
-  'STRIPE_PRICE_TIMMY_6MONTH',
-  'STRIPE_PRICE_TIMMY_YEARLY',
-  'STRIPE_PRICE_CHAD_MONTHLY',
-  'STRIPE_PRICE_CHAD_6MONTH',
-  'STRIPE_PRICE_CHAD_YEARLY',
-] as const;
-const IS_BUILD_COMMAND = isNuxtBuildCommand();
-const IS_CF_PREVIEW = process.env.CF_PAGES === '1' && process.env.CF_PAGES_BRANCH !== 'main';
-const IS_CI = process.env.CI === 'true';
-// Skip Stripe env validation in CI: GitHub Actions builds run with placeholder/test keys
-// and shouldn't fail the production build guard. Real production builds run on Cloudflare
-// Pages (CF_PAGES=1), where IS_CI is false and the keys must be present.
-if (IS_PRODUCTION_BUILD && IS_BUILD_COMMAND && !IS_CF_PREVIEW && !IS_CI) {
-  const missingKeys = ['STRIPE_SECRET_KEY', ...STRIPE_PRICE_KEYS].filter(
-    (key) => !process.env[key]?.trim()
-  );
-  if (missingKeys.length > 0) {
-    throw new Error(`[Config] Missing required Stripe env vars: ${missingKeys.join(', ')}`);
-  }
-}
-// Sitekeys are public identifiers; the secret stays in the Pages project env.
-// Production and preview builds require explicit configuration so a secret can never
-// be deployed without the matching client widget. Local builds use Cloudflare test keys.
-const TURNSTILE_SITE_KEY = (
-  process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY ??
-  (!IS_PRODUCTION_BUILD ? TURNSTILE_TEST_SITE_KEY : '')
-).trim();
-const TURNSTILE_SECRET_KEY = (
-  process.env.NUXT_TURNSTILE_SECRET_KEY ?? (IS_PRODUCTION_BUILD ? '' : TURNSTILE_TEST_SECRET_KEY)
-).trim();
-if (IS_PRODUCTION_BUILD && Boolean(TURNSTILE_SITE_KEY) !== Boolean(TURNSTILE_SECRET_KEY)) {
-  throw new Error(
-    '[Config] NUXT_PUBLIC_TURNSTILE_SITE_KEY and NUXT_TURNSTILE_SECRET_KEY must be configured together'
-  );
-}
-const cspRouteRules = buildContentSecurityPolicyRouteRules({
-  clientLogSinkUrl,
-  clarityInstrumentationKey: IS_PRODUCTION_BUILD ? MICROSOFT_CLARITY_PROJECT_ID : '',
-  gaMeasurementId: IS_PRODUCTION_BUILD ? GOOGLE_ANALYTICS_MEASUREMENT_ID : '',
-  staticQuestDataBaseUrl,
-  supabaseUrl: PUBLIC_SUPABASE_URL,
-  turnstileSiteKey: TURNSTILE_SITE_KEY,
-});
-const webApplicationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebApplication',
-  name: 'Tarkov Tracker',
-  alternateName: 'TarkovTracker',
-  url: 'https://tarkovtracker.org',
-  applicationCategory: 'GameApplication',
-  operatingSystem: 'Web',
-  description:
-    'Tarkov Tracker helps you track Escape from Tarkov quest progress, storyline, hideout upgrades, and needed items.',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
-  author: {
-    '@type': 'Organization',
-    name: 'Tarkov Tracker',
-    url: 'https://tarkovtracker.org',
-  },
-  sameAs: ['https://github.com/tarkovtracker-org/TarkovTracker'],
-};
+const appDir = resolve('app');
+const testsDir = resolve('tests');
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   telemetry: false,
@@ -127,259 +9,24 @@ export default defineNuxtConfig({
   srcDir: 'app',
   ignore: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
   runtimeConfig: {
-    // Server-only (private) runtime config
-    supabaseUrl: PRIVATE_SUPABASE_URL,
-    supabaseServiceKey: process.env.NUXT_SUPABASE_SERVICE_KEY || '',
-    supabaseAnonKey: PRIVATE_SUPABASE_ANON_KEY,
-    githubToken: process.env.NUXT_GITHUB_TOKEN?.trim() || '',
-    githubContributorsExclude:
-      process.env.NUXT_GITHUB_CONTRIBUTORS_EXCLUDE ||
-      'claude,claude[bot],semantic-release-bot,semantic-release[bot]',
-    githubContributorsCacheTtlMs:
-      Number(process.env.NUXT_GITHUB_CONTRIBUTORS_CACHE_TTL_MS || '1800000') || 1800000,
-    githubTimeoutMs: Number(process.env.NUXT_GITHUB_TIMEOUT_MS || '8000') || 8000,
-    tarkovJsonBaseUrl: process.env.NUXT_TARKOV_JSON_BASE_URL || '',
-    logSinkUrl: process.env.NUXT_LOG_SINK_URL || '',
-    twitchClientId: process.env.NUXT_TWITCH_CLIENT_ID || 'kimne78kx3ncx6brgo4mv6wki5h1ko',
-    publicCacheBypassEnabled: process.env.NUXT_CACHE_BYPASS_ENABLED === 'true',
-    teamMembersCacheTtlMs: Number(process.env.NUXT_TEAM_MEMBERS_CACHE_TTL_MS || '5000') || 5000,
-    teamMembersRateLimitPerMinute:
-      Number(process.env.NUXT_TEAM_MEMBERS_RATE_LIMIT_PER_MINUTE || '120') || 120,
-    stripeSecretKey: (process.env.STRIPE_SECRET_KEY ?? '').trim(),
-    stripePriceScavMonthly: (process.env.STRIPE_PRICE_SCAV_MONTHLY ?? '').trim(),
-    stripePriceScav6month: (process.env.STRIPE_PRICE_SCAV_6MONTH ?? '').trim(),
-    stripePriceScavYearly: (process.env.STRIPE_PRICE_SCAV_YEARLY ?? '').trim(),
-    stripePriceTimmyMonthly: (process.env.STRIPE_PRICE_TIMMY_MONTHLY ?? '').trim(),
-    stripePriceTimmy6month: (process.env.STRIPE_PRICE_TIMMY_6MONTH ?? '').trim(),
-    stripePriceTimmyYearly: (process.env.STRIPE_PRICE_TIMMY_YEARLY ?? '').trim(),
-    stripePriceChadMonthly: (process.env.STRIPE_PRICE_CHAD_MONTHLY ?? '').trim(),
-    stripePriceChad6month: (process.env.STRIPE_PRICE_CHAD_6MONTH ?? '').trim(),
-    stripePriceChadYearly: (process.env.STRIPE_PRICE_CHAD_YEARLY ?? '').trim(),
-    accountIpHashSecret: (process.env.NUXT_ACCOUNT_IP_HASH_SECRET ?? '').trim(),
-    sharedProfileCacheTtlMs: Number(process.env.NUXT_SHARED_PROFILE_CACHE_TTL_MS || '5000') || 5000,
-    sharedProfileRateLimitPerMinute:
-      Number(process.env.NUXT_SHARED_PROFILE_RATE_LIMIT_PER_MINUTE || '120') || 120,
-    tarkovDevProfileCacheTtlMs:
-      Number(process.env.NUXT_TARKOV_DEV_PROFILE_CACHE_TTL_MS || '900000') || 900000,
-    tarkovDevProfileRateLimitPerMinute:
-      Number(process.env.NUXT_TARKOV_DEV_PROFILE_RATE_LIMIT_PER_MINUTE || '5') || 5,
-    tarkovDevProfileRateLimitPerHour:
-      Number(process.env.NUXT_TARKOV_DEV_PROFILE_RATE_LIMIT_PER_HOUR || '20') || 20,
-    // 0 disables the freshness gate, so the raw value must survive without a truthiness fallback;
-    // an empty-string env var must not silently disable the gate either.
-    tarkovDevProfileMaxUpdatedAgeDays: Number(
-      process.env.NUXT_TARKOV_DEV_PROFILE_MAX_UPDATED_AGE_DAYS?.trim() || '7'
-    ),
-    turnstileSecretKey: TURNSTILE_SECRET_KEY,
-    // API protection configuration (server-only)
-    apiProtection: {
-      // Comma-separated list of allowed hosts (e.g., "tarkovtracker.org,www.tarkovtracker.org")
-      allowedHosts: process.env.API_ALLOWED_HOSTS || '',
-      // Comma-separated list of internal/trusted IP ranges (CIDR notation or single IPs)
-      // e.g., "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,127.0.0.1"
-      trustedIpRanges: process.env.API_TRUSTED_IP_RANGES || '',
-      // Whether to require authentication for protected API routes
-      requireAuth: process.env.API_REQUIRE_AUTH !== 'false', // defaults to true
-      // Routes that are exempt from auth requirement (comma-separated, supports wildcards)
-      // e.g., "/api/tarkov/*" for public data endpoints
-      publicRoutes:
-        process.env.API_PUBLIC_ROUTES?.trim() ||
-        '/api/tarkov/*,/api/tarkov-dev/profile,/api/changelog,/api/contributors,/api/logs/client,/api/profile/*,/api/streamer/*,/api/twitch/*',
-      // Whether to trust proxy headers (X-Forwarded-For, etc.)
-      // ONLY enable this if the server is behind a trusted proxy like Cloudflare
-      trustProxy: resolveTrustProxySetting({
-        API_TRUST_PROXY: process.env.API_TRUST_PROXY,
-        NITRO_PRESET,
-      }),
-    },
     public: {
-      NODE_ENV: process.env.NODE_ENV || 'production',
-      logLevel: process.env.NUXT_PUBLIC_LOG_LEVEL || '',
-      appUrl: PUBLIC_APP_URL,
-      appVersion,
-      googleAnalyticsMeasurementId: IS_PRODUCTION_BUILD ? GOOGLE_ANALYTICS_MEASUREMENT_ID : '',
-      microsoftClarityProjectId: IS_PRODUCTION_BUILD ? MICROSOFT_CLARITY_PROJECT_ID : '',
-      supabaseAnonKey: PUBLIC_SUPABASE_ANON_KEY,
-      supabaseUrl: PUBLIC_SUPABASE_URL,
-      clientLogSinkUrl,
-      staticQuestDataBaseUrl,
+      appUrl: process.env.APP_URL || 'http://localhost:3000',
+      appVersion: process.env.npm_package_version || 'dev',
+      staticQuestDataBaseUrl:
+        process.env.NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL?.trim() || '/quest-data',
       staticQuestMode: process.env.NODE_ENV !== 'test',
-      turnstileSiteKey: TURNSTILE_SITE_KEY,
-      tarkovDevImportCooldownMinutes: Number(
-        process.env.NUXT_PUBLIC_TARKOV_DEV_IMPORT_COOLDOWN_MINUTES?.trim() || '60'
-      ),
-      allowDirectTokenCreateFallback:
-        process.env.NUXT_PUBLIC_ALLOW_DIRECT_TOKEN_CREATE_FALLBACK === 'true',
-      adminWatchTimeoutMs: Number(process.env.ADMIN_WATCH_TIMEOUT_MS || '5000') || 5000,
-      githubOwner: process.env.GITHUB_OWNER || 'tarkovtracker-org',
-      githubRepo: process.env.GITHUB_REPO || 'TarkovTracker',
-      promotedTwitch: {
-        channel: process.env.NUXT_PUBLIC_PROMOTED_TWITCH_CHANNEL || 'honeyxxo',
-        displayName: process.env.NUXT_PUBLIC_PROMOTED_TWITCH_DISPLAY_NAME || 'honeyxxo',
-        enabled: process.env.NUXT_PUBLIC_PROMOTED_TWITCH_ENABLED === 'true',
-      },
     },
-  },
-  devtools: {
-    enabled: process.env.NODE_ENV === 'development',
-    timeline: {
-      enabled: true,
-    },
-  },
-  serverDir: resolve(__dirname, 'app/server'),
-  nitro: {
-    preset: NITRO_PRESET,
-    cloudflare: {
-      pages: {
-        defaultRoutes: false,
-        routes: {
-          include: ['/api/*', '/overlay/*'],
-          exclude: [],
-        },
-      },
-    },
-    hooks: {
-      async compiled(nitro) {
-        if (!String(nitro.options.preset || '').includes('cloudflare')) {
-          return;
-        }
-        const walk = (dir: string) => {
-          let entries: Dirent[];
-          try {
-            entries = readdirSync(dir, { withFileTypes: true, encoding: 'utf8' });
-          } catch {
-            return;
-          }
-          for (const entry of entries) {
-            const full = join(dir, entry.name);
-            if (entry.isDirectory()) {
-              walk(full);
-              continue;
-            }
-            if (!/\.(m?js|cjs)$/.test(entry.name)) continue;
-            try {
-              const source = readFileSync(full, 'utf8');
-              const next = stripBareNodeImports(source);
-              if (next !== source) writeFileSync(full, next);
-            } catch {
-              // Skip if the path vanished mid-walk (should not happen mid-build).
-            }
-          }
-        };
-        walk(nitro.options.output.serverDir);
-      },
-    },
-  },
-  routeRules: {
-    '/neededitems': { redirect: { to: '/needed-items', statusCode: 301 } },
-    '/streamer-tools': { redirect: { to: '/settings#streamer-tools', statusCode: 301 } },
-    '/200.html': { prerender: true },
-    // Explicit long-term caching for build assets
-    '/_nuxt/**': {
-      headers: { 'cache-control': 'public,max-age=31536000,immutable' },
-    },
-    '/_fonts/**': {
-      headers: { 'cache-control': 'public,max-age=31536000,immutable' },
-    },
-    ...cspRouteRules,
   },
   app: {
-    baseURL: '/',
-    buildAssetsDir: '/_nuxt/',
     head: {
       titleTemplate: '%s | Tarkov Tracker',
-      title: 'Escape from Tarkov Quest, Hideout, and Item Tracker',
-      style: [
-        {
-          textContent: [
-            `:root{--shell-w:${SHELL_DRAWER_EXPANDED_WIDTH}}`,
-            'body{background:var(--color-surface-950,hsl(0 0% 4%))}',
-            '#__nuxt:empty::before{',
-            'content:"";',
-            'display:block;',
-            'position:fixed;',
-            'inset:0;',
-            'width:var(--shell-w);',
-            'background:var(--color-surface-900,hsl(0 0% 9%));',
-            'border-right:1px solid var(--color-surface-700,hsl(0 0% 25%));',
-            'z-index:50',
-            '}',
-            '#__nuxt:empty::after{',
-            'content:"";',
-            'display:block;',
-            'position:fixed;',
-            'top:0;',
-            'left:var(--shell-w);',
-            'right:0;',
-            'height:44px;',
-            'background:var(--color-surface-900,hsl(0 0% 9%));',
-            'border-bottom:1px solid var(--color-surface-700,hsl(0 0% 25%));',
-            'z-index:40',
-            '}',
-            `@media(width < ${SHELL_DESKTOP_BREAKPOINT_PX}px){`,
-            `:root{--shell-w:${SHELL_DRAWER_COLLAPSED_WIDTH}}`,
-            '}',
-          ].join(''),
-        },
-      ],
-      script: [
-        {
-          innerHTML: ENTRY_RECOVERY_SCRIPT,
-        },
-        {
-          innerHTML: [
-            'try{',
-            `if(window.localStorage.getItem(${JSON.stringify(SHELL_DRAWER_RAIL_STORAGE_KEY)})==="true"`,
-            `&&window.matchMedia("(min-width:${SHELL_DESKTOP_BREAKPOINT_PX}px)").matches)`,
-            `{document.documentElement.style.setProperty("--shell-w",${JSON.stringify(SHELL_DRAWER_COLLAPSED_WIDTH)})}`,
-            '}catch(e){}',
-          ].join(''),
-        },
-        {
-          type: 'application/ld+json',
-          textContent: JSON.stringify(webApplicationSchema),
-        },
-      ],
+      title: 'Escape from Tarkov Map and Task Planner',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'robots', content: 'index, follow, max-image-preview:large' },
         {
           name: 'description',
-          content:
-            'Tarkov Tracker helps you track Escape from Tarkov quest progress, storyline, hideout upgrades, and needed items. Plan raids, share progression with your team, and stay ready for wipe updates.',
-        },
-        {
-          name: 'keywords',
-          content:
-            'tarkov tracker, tarkov quest tracker, escape from tarkov tasks, eft hideout tracker, eft needed items',
-        },
-        { name: 'theme-color', content: '#c8a882' },
-        // OpenGraph tags
-        { property: 'og:site_name', content: 'Tarkov Tracker' },
-        { property: 'og:type', content: 'website' },
-        { property: 'og:title', content: 'Tarkov Tracker - Escape from Tarkov Progress Tracker' },
-        {
-          property: 'og:description',
-          content:
-            'Tarkov Tracker helps you track Escape from Tarkov quest progress, storyline, hideout upgrades, and needed items. Plan raids, share progression with your team, and stay ready for wipe updates.',
-        },
-        {
-          property: 'og:image',
-          content: 'https://tarkovtracker.org/img/logos/tarkovtrackerlogo-light.webp',
-        },
-        { property: 'og:url', content: 'https://tarkovtracker.org' },
-        // Twitter Card tags
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'Tarkov Tracker - Escape from Tarkov Progress Tracker' },
-        {
-          name: 'twitter:description',
-          content:
-            'Tarkov Tracker helps you track Escape from Tarkov quest progress, storyline, hideout upgrades, and needed items. Plan raids, share progression with your team, and stay ready for wipe updates.',
-        },
-        {
-          name: 'twitter:image',
-          content: 'https://tarkovtracker.org/img/logos/tarkovtrackerlogo-light.webp',
+          content: 'Plan Escape from Tarkov tasks on interactive maps using local static data.',
         },
       ],
     },
@@ -391,63 +38,16 @@ export default defineNuxtConfig({
     '~': appDir,
   },
   modules: [
-    isNonProduction ? '@nuxt/eslint' : undefined,
-    isNonProduction ? '@nuxt/test-utils/module' : undefined,
+    process.env.NODE_ENV !== 'production' ? '@nuxt/eslint' : undefined,
+    process.env.NODE_ENV !== 'production' ? '@nuxt/test-utils/module' : undefined,
     '@pinia/nuxt',
     '@nuxt/ui',
     '@nuxt/image',
     '@nuxtjs/i18n',
-    process.env.NODE_ENV === 'test' ? undefined : '@nuxtjs/sitemap',
-    process.env.CODECOV_TOKEN !== undefined
-      ? ([
-          '@codecov/nuxt-plugin',
-          {
-            enableBundleAnalysis: true,
-            bundleName: 'tarkovtracker',
-            uploadToken: process.env.CODECOV_TOKEN,
-            uploadOverrides: {
-              slug: 'tarkovtracker-org/TarkovTracker',
-            },
-            telemetry: false,
-          },
-        ] as [string, Record<string, unknown>])
-      : undefined,
-  ].filter(Boolean) as (string | [string, Record<string, unknown>])[],
-  site: {
-    url: 'https://tarkovtracker.org',
-    name: 'Tarkov Tracker',
-  },
-  sitemap: {
-    zeroRuntime: true,
-    xslColumns: [
-      { label: 'URL', width: '65%' },
-      { label: 'Last Modified', select: 'sitemap:lastmod', width: '25%' },
-    ],
-    exclude: [
-      '/account',
-      '/admin',
-      '/auth/**',
-      '/login',
-      '/not-found',
-      '/oauth/**',
-      '/profile',
-      '/settings',
-      '/team',
-    ],
-    defaults: {
-      changefreq: 'weekly',
-      priority: 0.8,
-    },
-  },
+  ].filter(Boolean) as string[],
   i18n: {
-    bundle: {
-      compositionOnly: true,
-      runtimeOnly: true,
-    },
-    compilation: {
-      strictMessage: false,
-      escapeHtml: true,
-    },
+    bundle: { compositionOnly: true, runtimeOnly: true },
+    compilation: { strictMessage: false, escapeHtml: true },
     strategy: 'no_prefix',
     defaultLocale: 'en',
     restructureDir: 'app',
@@ -455,95 +55,26 @@ export default defineNuxtConfig({
     locales: SUPPORTED_LOCALES.map((code) => ({ code, file: `${code}.json` })),
     vueI18n: 'i18n.config.ts',
   },
-  hooks: {
-    'nitro:init': (nitro) => {
-      if (
-        !shouldAssertCloudflarePagesOutput({
-          isBuildCommand: IS_BUILD_COMMAND,
-          nitroPreset: String(nitro.options.preset || ''),
-        })
-      ) {
-        return;
-      }
-      nitro.hooks.hook('compiled', () => {
-        promoteSpaFallback(nitro.options.output.publicDir);
-        writeFileSync(
-          resolve(nitro.options.output.dir, '_routes.json'),
-          JSON.stringify({ version: 1, include: ['/api/*', '/overlay/*'], exclude: [] }, null, 2)
-        );
-        assertCloudflarePagesOutput(nitro.options.output.dir, ['/api/*', '/overlay/*']);
-      });
-    },
-    'imports:extend': (imports: Array<{ as?: string; from?: string; name: string }>) => {
-      const blockedImports = [
-        { names: new Set(['meta']), sourcePattern: '/app/utils/perf' },
-        { names: new Set(['string']), sourcePattern: '/app/utils/constants' },
-        { names: new Set(['string']), sourcePattern: '/app/utils/mapTime' },
-        { names: new Set(['string']), sourcePattern: '/app/utils/skillHelpers' },
-        { names: new Set(['actions']), sourcePattern: '/app/stores/useApp' },
-        { names: new Set(['getters']), sourcePattern: '/app/stores/useApp' },
-        { names: new Set(['actions']), sourcePattern: '/app/stores/useTarkov' },
-        {
-          names: new Set(['options']),
-          sourcePattern: '@nuxt/ui/dist/runtime/composables/useResizable',
-        },
-      ];
-      for (let index = imports.length - 1; index >= 0; index -= 1) {
-        const imported = imports[index];
-        if (!imported) continue;
-        const source = imported.from ?? '';
-        const exposedName = imported.as ?? imported.name;
-        const shouldBlock = blockedImports.some(
-          ({ names, sourcePattern }) =>
-            source.includes(sourcePattern) && (names.has(imported.name) || names.has(exposedName))
-        );
-        if (shouldBlock) imports.splice(index, 1);
-      }
-    },
-  },
-  image: {
-    domains: [...GITHUB_IMAGE_DOMAINS, ...TARKOV_IMAGE_DOMAINS, ...YOUTUBE_IMAGE_DOMAINS],
-  },
-  icon: {
-    clientBundle: {
-      scan: true,
-    },
-  },
+  icon: { clientBundle: { scan: true } },
   ui: {
     theme: {
       colors: [
         'primary',
         'secondary',
         'neutral',
-        'brand',
-        'accent',
         'pvp',
         'pve',
         'info',
         'success',
         'warning',
         'error',
-        'kappa',
-        'lightkeeper',
       ],
     },
   },
   components: [
-    {
-      path: '~/components',
-      pathPrefix: false,
-      extensions: ['vue'],
-    },
-    {
-      path: '~/features',
-      pathPrefix: false,
-      extensions: ['vue'],
-    },
-    {
-      path: '~/shell',
-      pathPrefix: false,
-      extensions: ['vue'],
-    },
+    { path: '~/components', pathPrefix: false, extensions: ['vue'] },
+    { path: '~/features', pathPrefix: false, extensions: ['vue'] },
+    { path: '~/shell', pathPrefix: false, extensions: ['vue'] },
   ],
   typescript: {
     tsConfig: {
@@ -557,64 +88,33 @@ export default defineNuxtConfig({
       },
     },
   },
-  postcss: {
-    plugins: {
-      '@tailwindcss/postcss': {},
-      autoprefixer: {},
-    },
-  },
+  postcss: { plugins: { '@tailwindcss/postcss': {}, autoprefixer: {} } },
   vite: {
-    plugins: [
-      {
-        enforce: 'pre',
-        name: 'nuxt-ui-use-resizable-options-shim',
-        transform(code, id) {
-          if (!id.includes('@nuxt/ui/dist/runtime/composables/useResizable.js')) {
-            return;
+    oxc: { tsconfig: false } as never,
+    optimizeDeps: { include: ['@vueuse/core', 'fflate', 'leaflet', 'pinia-plugin-persistedstate'] },
+  },
+  hooks: {
+    'vite:configResolved'(config) {
+      const vuePlugin = config.plugins?.find(
+        (plugin) =>
+          typeof plugin === 'object' &&
+          plugin !== null &&
+          !Array.isArray(plugin) &&
+          'name' in plugin &&
+          plugin.name === 'vite:vue'
+      ) as
+        | {
+            api: { options: { devServer?: unknown } };
           }
-          if (code.includes('export const options')) {
-            return;
-          }
-          return `${code}\nexport const options = {};\n`;
+        | undefined;
+      if (!vuePlugin) return;
+      vuePlugin.api.options = {
+        ...vuePlugin.api.options,
+        devServer: {
+          config: { base: config.base, oxc: { tsconfig: false }, server: { hmr: false } },
+          watcher: { on() {} },
         },
-      },
-    ],
-    base: '/',
-    optimizeDeps: {
-      exclude: ['better-sqlite3'],
-      include: [
-        '@supabase/supabase-js',
-        '@vue/devtools-core',
-        '@vue/devtools-kit',
-        '@vueuse/core',
-        'fflate',
-        'leaflet',
-        'pinia-plugin-persistedstate',
-      ],
-    },
-    vue: {
-      // Forwarded to @vitejs/plugin-vue
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag: string) => tag === 'suspense',
-        },
-      },
-    },
-    build: {
-      rolldownOptions: {
-        output: {
-          codeSplitting: {
-            groups: [
-              { name: 'vendor-leaflet', test: /node_modules[\\/]leaflet/ },
-              { name: 'vendor-supabase', test: /node_modules[\\/]@supabase/ },
-              {
-                name: 'vendor-core',
-                test: /node_modules[\\/](vue|pinia|ufo|ofetch|defu|h3)/,
-              },
-            ],
-          },
-        },
-      },
+      };
     },
   },
 });

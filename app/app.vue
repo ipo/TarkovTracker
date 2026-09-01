@@ -24,7 +24,6 @@
 </template>
 <script setup lang="ts">
   import { useAppInitialization } from '@/composables/useAppInitialization';
-  import { SETTINGS_ROUTE_PATHS } from '@/features/drawer/navigation';
   import { logger } from '@/utils/logger';
   import { resolveCanonicalSiteUrl } from '@/utils/runtimeConfig';
   const CHUNK_ERROR_PATTERNS = [
@@ -48,48 +47,12 @@
   const { locale, t } = useI18n();
   const { public: publicConfig } = useRuntimeConfig();
   const siteUrl = resolveCanonicalSiteUrl(publicConfig.appUrl);
-  const settingsHashCanonicalPaths: Record<string, string> = {
-    '#progression': '/progression',
-    '#settings-progression': '/progression',
-    '#prestige': '/prestige',
-    '#settings-prestige': '/prestige',
-    '#preferences': '/preferences',
-    '#settings-preferences': '/preferences',
-    '#account': '/account',
-    '#settings-account': '/account',
-    '#imports': '/settings',
-    '#settings-imports': '/settings',
-    '#backup-restore': '/settings',
-    '#settings-backup-restore': '/settings',
-    '#api': '/settings',
-  };
-  const canonicalPath = computed(() => {
-    if (SETTINGS_ROUTE_PATHS.has(route.path)) {
-      if (!route.hash) {
-        return route.path === '/settings' ? '/progression' : route.path;
-      }
-      const normalizedHash = route.hash.startsWith('#') ? route.hash : `#${route.hash}`;
-      return settingsHashCanonicalPaths[normalizedHash] ?? route.path;
-    }
-    return route.path;
-  });
-  const pageOwnsCanonical = computed(
-    () => route.path.startsWith('/resources/') && route.path !== '/resources/'
-  );
+  const canonicalPath = computed(() => route.path);
   useHead(() => ({
     htmlAttrs: {
       lang: locale.value,
     },
-    link: [
-      ...(pageOwnsCanonical.value
-        ? []
-        : [
-            {
-              rel: 'canonical' as const,
-              href: `${siteUrl}${canonicalPath.value}`,
-            },
-          ]),
-    ],
+    link: [{ rel: 'canonical' as const, href: `${siteUrl}${canonicalPath.value}` }],
   }));
   useSeoMeta({
     ogUrl: computed(() => `${siteUrl}${canonicalPath.value}`),

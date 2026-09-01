@@ -20,39 +20,18 @@ const getDirectiveSources = (csp: string, directive: string): string[] => {
     .filter(Boolean);
 };
 describe('nuxt.config CSP', () => {
-  it('includes runtime backend origins in connect-src', () => {
+  it('includes configured static-data and log origins in connect-src', () => {
     const connectSources = getConnectSrcSources({
       clientLogSinkUrl: 'https://logs.example.com/v1/collect',
       staticQuestDataBaseUrl: 'http://192.168.1.50:8080/exports',
-      supabaseUrl: 'https://db.example.com/auth/v1',
     });
     expect(connectSources).toContain('https://assets.tarkov.dev');
     expect(connectSources).toContain('https://tarkovtracker.github.io');
     expect(connectSources).toContain('https://logs.example.com');
     expect(connectSources).toContain('http://192.168.1.50:8080');
-    expect(connectSources).toContain('https://db.example.com');
-    expect(connectSources).toContain('wss://db.example.com');
     expect(connectSources).not.toContain('https://logs.example.com/v1/collect');
-    expect(connectSources).not.toContain('https://db.example.com/auth/v1');
   });
-  it('limits insecure websocket origins to local http backends', () => {
-    const remoteSources = getConnectSrcSources({
-      supabaseUrl: 'http://db.example.com/auth/v1',
-    });
-    const localSources = getConnectSrcSources({
-      supabaseUrl: 'http://localhost:54321/auth/v1',
-    });
-    const ipv6Sources = getConnectSrcSources({
-      supabaseUrl: 'http://[::1]:54321/auth/v1',
-    });
-    expect(remoteSources).toContain('http://db.example.com');
-    expect(remoteSources).not.toContain('ws://db.example.com');
-    expect(localSources).toContain('http://localhost:54321');
-    expect(localSources).toContain('ws://localhost:54321');
-    expect(ipv6Sources).toContain('http://[::1]:54321');
-    expect(ipv6Sources).toContain('ws://[::1]:54321');
-  });
-  it('allows remote https images for oauth avatars and map fallbacks', () => {
+  it('allows remote https images for map artwork and fallbacks', () => {
     const imageSources = getImgSrcSources();
     expect(imageSources).toContain('https:');
   });
@@ -61,7 +40,6 @@ describe('nuxt.config CSP', () => {
       clientLogSinkUrl: 'https://logs.example.com/v1/collect',
       clarityInstrumentationKey: 'abcdef1234',
       gaMeasurementId: 'G-ABCDEF1234',
-      supabaseUrl: 'https://db.example.com/auth/v1',
     });
     expect(getDirectiveSources(csp, 'default-src')).toEqual(["'self'"]);
     expect(getDirectiveSources(csp, 'script-src')).toContain("'unsafe-inline'");
@@ -71,7 +49,6 @@ describe('nuxt.config CSP', () => {
     expect(getDirectiveSources(csp, 'script-src')).toContain('https://*.googletagmanager.com');
     expect(getDirectiveSources(csp, 'script-src')).toContain('https://*.clarity.ms');
     expect(getDirectiveSources(csp, 'connect-src')).toContain('https://cloudflareinsights.com');
-    expect(getDirectiveSources(csp, 'connect-src')).toContain('https://db.example.com');
     expect(getDirectiveSources(csp, 'img-src')).toContain('https:');
     expect(getDirectiveSources(csp, 'style-src')).toEqual([
       "'self'",

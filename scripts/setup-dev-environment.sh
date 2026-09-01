@@ -76,7 +76,7 @@ setup_environment() {
     if [ -f "$legacy_env_file" ]; then
         mv "$legacy_env_file" "$env_file"
         echo "Migrated legacy $legacy_env_file to $env_file"
-        echo "WARNING: Review $env_file and add your Supabase credentials"
+        echo "INFO: Review $env_file for optional local configuration"
         return
     fi
     if [ ! -f "$env_example" ]; then
@@ -85,7 +85,7 @@ setup_environment() {
     fi
     cp "$env_example" "$env_file"
     echo "Created $env_file from $env_example"
-    echo "WARNING: Review $env_file and add your Supabase credentials"
+    echo "INFO: Review $env_file for optional local configuration"
 }
 main() {
     check_prerequisites
@@ -95,12 +95,8 @@ main() {
     echo "Development environment setup complete!"
     echo ""
     echo "Next steps:"
-    echo "1. Update .env with your Supabase credentials if you need login or sync"
-    echo "2. Run 'pnpm run dev' to start the development server"
-    echo "3. Visit http://localhost:3000"
-    echo ""
-    echo "For workers development:"
-    echo "  pnpm --filter api-gateway run dev"
+    echo "1. Run 'pnpm run dev' to start the development server"
+    echo "2. Visit http://localhost:3000"
     echo ""
     echo "For CI/CD (maintainers):"
     echo "  Configure these GitHub secrets:"

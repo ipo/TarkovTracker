@@ -7,100 +7,59 @@ type MockTask = {
 };
 const setup = async (task: MockTask) => {
   const metadataStore = {
-    objectives: [
-      {
-        id: 'obj-1',
-        taskId: task.id,
-        description: 'Find the location',
-        count: 1,
-      },
-    ],
+    objectives: [{ id: 'obj-1', taskId: task.id, description: 'Find the location', count: 3 }],
     tasks: [task],
   };
+  const preferencesStore = { getMapTooltipDensity: 'default' };
   const tarkovStore = {
-    isTaskObjectiveComplete: vi.fn(() => false),
-    getObjectiveCount: vi.fn(() => 0),
+    getObjectiveCount: vi.fn(() => 1),
     isTaskComplete: vi.fn(() => false),
     isTaskFailed: vi.fn(() => false),
-    setTaskObjectiveUncomplete: vi.fn(),
+    isTaskObjectiveComplete: vi.fn(() => false),
     setObjectiveCount: vi.fn(),
     setTaskObjectiveComplete: vi.fn(),
+    setTaskObjectiveUncomplete: vi.fn(),
   };
-  vi.doMock('@/stores/useMetadata', () => ({
-    useMetadataStore: () => metadataStore,
-  }));
-  vi.doMock('@/stores/useTarkov', () => ({
-    useTarkovStore: () => tarkovStore,
-  }));
-  vi.doMock('@/utils/logger', () => ({
-    logger: { warn: vi.fn(), error: vi.fn(), debug: vi.fn(), info: vi.fn() },
-  }));
+  const router = { currentRoute: { value: { query: { view: 'maps' } } }, replace: vi.fn() };
+  vi.doMock('@/stores/useMetadata', () => ({ useMetadataStore: () => metadataStore }));
+  vi.doMock('@/stores/usePreferences', () => ({ usePreferencesStore: () => preferencesStore }));
+  vi.doMock('@/stores/useTarkov', () => ({ useTarkovStore: () => tarkovStore }));
   const { default: LeafletObjectiveTooltip } =
     await import('@/features/maps/LeafletObjectiveTooltip.vue');
-  const onClose = vi.fn();
   const wrapper = mount(LeafletObjectiveTooltip, {
-    props: {
-      objectiveId: 'obj-1',
-      onClose,
-    },
-    global: {
-      provide: {
-        router: {
-          currentRoute: {
-            value: {
-              query: {},
-            },
-          },
-          replace: vi.fn(),
-        },
-      },
-      stubs: {
-        AppTooltip: {
-          template: '<span><slot /></span>',
-        },
-        UIcon: true,
-      },
-    },
+    props: { objectiveId: 'obj-1', t: (key: string) => key },
+    global: { provide: { router }, stubs: { UIcon: true } },
   });
-  return { onClose, wrapper };
+  return { router, tarkovStore, wrapper };
 };
 describe('LeafletObjectiveTooltip', () => {
   beforeEach(() => {
     vi.resetModules();
   });
-  it('renders wiki and Tarkov.dev task links in objective tooltip', async () => {
-    const { wrapper } = await setup({
+  it('restores task context, links, completion, and task-list navigation', async () => {
+    const { router, tarkovStore, wrapper } = await setup({
       id: 'task-1',
       name: 'Operation Aquarius',
       wikiLink: 'https://escapefromtarkov.fandom.com/wiki/Operation_Aquarius',
     });
-    const wikiLinks = wrapper.findAll(
-      'a[href="https://escapefromtarkov.fandom.com/wiki/Operation_Aquarius"]'
-    );
-    expect(wikiLinks.length).toBeGreaterThan(0);
-    const tarkovDevLink = wrapper.find('a[href="https://tarkov.dev/task/task-1"]');
-    expect(tarkovDevLink.exists()).toBe(true);
-    expect(tarkovDevLink.attributes('target')).toBe('_blank');
-    expect(tarkovDevLink.attributes('rel')).toContain('noopener');
-    expect(tarkovDevLink.attributes('rel')).toContain('noreferrer');
-  });
-  it('renders Tarkov.dev task link when task has no wiki link', async () => {
-    const { wrapper } = await setup({
-      id: 'task-2',
-      name: 'No Wiki Task',
-      wikiLink: null,
+    expect(wrapper.text()).toContain('Operation Aquarius');
+    expect(wrapper.text()).toContain('Find the location');
+    expect(wrapper.text()).toContain('1/3');
+    expect(
+      wrapper.find('a[href="https://escapefromtarkov.fandom.com/wiki/Operation_Aquarius"]').exists()
+    ).toBe(true);
+    expect(wrapper.find('a[href="https://tarkov.dev/task/task-1"]').exists()).toBe(true);
+    await wrapper.get('[aria-label="maps.tooltip.complete"]').trigger('click');
+    expect(tarkovStore.setTaskObjectiveComplete).toHaveBeenCalledWith('obj-1');
+    expect(tarkovStore.setObjectiveCount).toHaveBeenCalledWith('obj-1', 3);
+    await wrapper.get('[aria-label="maps.tooltip.go_to_in_task_list"]').trigger('click');
+    expect(router.replace).toHaveBeenCalledWith({
+      query: { view: 'maps', task: 'task-1', highlightObjective: 'obj-1' },
     });
-    expect(wrapper.find('a[href="https://tarkov.dev/task/task-2"]').exists()).toBe(true);
-    expect(wrapper.find('a[href*="escapefromtarkov.fandom.com/wiki/"]').exists()).toBe(false);
   });
   it('emits close when the tooltip close button is clicked', async () => {
-    const { onClose, wrapper } = await setup({
-      id: 'task-3',
-      name: 'Focused Task',
-      wikiLink: null,
-    });
+    const { wrapper } = await setup({ id: 'task-2', name: 'Focused Task' });
     await wrapper.get('[data-testid="objective-close-button"]').trigger('click');
-    expect(onClose).toHaveBeenCalledTimes(1);
     expect(wrapper.emitted('close')).toHaveLength(1);
   });
 });

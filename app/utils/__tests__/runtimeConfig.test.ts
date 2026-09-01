@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   GITHUB_IMAGE_DOMAINS,
@@ -8,65 +6,11 @@ import {
   resolveClientLogSinkUrl,
   resolveCanonicalSiteUrl,
   resolvePublicAppUrl,
-  resolveSupabaseRuntimeConfig,
   shouldEnableAnalyticsIntegrations,
-  shouldUseOfflineSupabaseFallback,
   TARKOV_IMAGE_DOMAINS,
   YOUTUBE_IMAGE_DOMAINS,
 } from '@/utils/runtimeConfig';
-describe('resolveSupabaseRuntimeConfig', () => {
-  it('resolves shared Supabase env values', () => {
-    const config = resolveSupabaseRuntimeConfig({
-      SUPABASE_ANON_KEY: ' shared-anon-key ',
-      SUPABASE_URL: ' https://shared.supabase.co ',
-    });
-    expect(config.privateUrl).toBe('https://shared.supabase.co');
-    expect(config.privateAnonKey).toBe('shared-anon-key');
-    expect(config.publicUrl).toBe('https://shared.supabase.co');
-    expect(config.publicAnonKey).toBe('shared-anon-key');
-  });
-  it('rejects partial credentials', () => {
-    expect(() =>
-      resolveSupabaseRuntimeConfig({
-        SUPABASE_ANON_KEY: 'shared-anon-key',
-      })
-    ).toThrow('[Config] Incomplete Supabase credentials: SUPABASE_*');
-  });
-  it('allows both shared credentials to be absent for offline development', () => {
-    expect(resolveSupabaseRuntimeConfig({})).toEqual({
-      privateAnonKey: '',
-      privateUrl: '',
-      publicAnonKey: '',
-      publicUrl: '',
-    });
-  });
-  it('uses the committed local env stub as an empty pair that selects offline mode', () => {
-    const envPath = join(process.cwd(), '.env.example.local');
-    const parsed: NodeJS.ProcessEnv = {};
-    for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const separator = trimmed.indexOf('=');
-      if (separator <= 0) continue;
-      parsed[trimmed.slice(0, separator)] = trimmed.slice(separator + 1);
-    }
-    expect(parsed.SUPABASE_URL ?? '').toBe('');
-    expect(parsed.SUPABASE_ANON_KEY ?? '').toBe('');
-    const config = resolveSupabaseRuntimeConfig(parsed);
-    expect(config).toEqual({
-      privateAnonKey: '',
-      privateUrl: '',
-      publicAnonKey: '',
-      publicUrl: '',
-    });
-    expect(!config.publicUrl.trim() || !config.publicAnonKey.trim()).toBe(true);
-    expect(
-      shouldUseOfflineSupabaseFallback({
-        hostname: 'localhost',
-        isProduction: false,
-      })
-    ).toBe(true);
-  });
+describe('image domains', () => {
   it('includes Tarkov asset hosts alongside GitHub image hosts', () => {
     expect([...GITHUB_IMAGE_DOMAINS, ...TARKOV_IMAGE_DOMAINS, ...YOUTUBE_IMAGE_DOMAINS]).toEqual(
       expect.arrayContaining([
@@ -112,33 +56,6 @@ describe('resolveCanonicalSiteUrl', () => {
   });
   it('preserves deployed origins and removes trailing slashes', () => {
     expect(resolveCanonicalSiteUrl('https://preview.pages.dev/')).toBe('https://preview.pages.dev');
-  });
-});
-describe('shouldUseOfflineSupabaseFallback', () => {
-  it('allows offline fallback outside production', () => {
-    expect(
-      shouldUseOfflineSupabaseFallback({
-        hostname: 'tarkovtracker.org',
-        isProduction: false,
-      })
-    ).toBe(true);
-  });
-  it('allows offline fallback on Cloudflare preview hosts', () => {
-    expect(
-      shouldUseOfflineSupabaseFallback({
-        hostname: 'feature-branch.tarkovtrackernuxt.pages.dev',
-        isProduction: true,
-      })
-    ).toBe(true);
-    expect(isPagesPreviewHostname('feature-branch.tarkovtrackernuxt.pages.dev')).toBe(true);
-  });
-  it('keeps production strict on primary hosts', () => {
-    expect(
-      shouldUseOfflineSupabaseFallback({
-        hostname: 'tarkovtracker.org',
-        isProduction: true,
-      })
-    ).toBe(false);
   });
 });
 describe('shouldEnableAnalyticsIntegrations', () => {

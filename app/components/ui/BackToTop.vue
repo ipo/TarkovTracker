@@ -6,7 +6,7 @@
       :aria-label="t('common.back_to_top')"
       @click="scrollToTop"
     >
-      <UIcon name="i-heroicons-arrow-up-20-solid" class="size-3.5" />
+      <UIcon name="i-mdi-arrow-up" class="size-3.5" />
       {{ t('common.back_to_top') }}
     </button>
   </Transition>

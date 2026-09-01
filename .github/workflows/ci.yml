@@ -144,14 +144,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Setup Deno
-        if: matrix.shard == 1
-        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
-        with:
-          deno-version: v2.9.4
-      - name: Run Deno tests
-        if: matrix.shard == 1
-        run: deno test supabase/functions/_shared/*.deno.test.ts
       - name: Run shard ${{ matrix.shard }}/${{ matrix.total }}
         run: pnpm exec vitest run --coverage --shard=${{ matrix.shard }}/${{ matrix.total }}
       - name: Upload coverage to Codecov
@@ -205,8 +197,6 @@ jobs:
           APP_URL: https://tarkovtracker.org
           CLARITY_PROJECT_ID: ${{ vars.CLARITY_PROJECT_ID }}
           GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
-          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload build artifacts
         if: github.ref == 'refs/heads/main'
@@ -215,76 +205,3 @@ jobs:
           name: build-${{ github.sha }}
           path: dist
           retention-days: 7
-  supabase-db:
-    name: Supabase DB
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version-file: .nvmrc
-      - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@11.14.0 --activate
-      - name: Setup pnpm cache
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version-file: .nvmrc
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Validate Supabase migrations
-        run: pnpm run supabase:check
-  systems-drift:
-    name: Systems drift check
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version-file: .nvmrc
-      - name: Systems drift check
-        run: node scripts/check-systems-drift.mjs
-  workers:
-    name: Workers
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version-file: .nvmrc
-      - name: Install pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@11.14.0 --activate
-      - name: Setup pnpm cache
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version-file: .nvmrc
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-      - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Validate api-gateway
-        if: hashFiles('workers/api-gateway/package.json') != ''
-        run: |
-          pnpm --filter api-gateway run types:check
-          pnpm --filter api-gateway run typecheck
-          pnpm --filter api-gateway run validate:openapi
-          pnpm --filter api-gateway exec wrangler deploy --config wrangler.toml --dry-run
-      - name: Test api-gateway
-        if: hashFiles('workers/api-gateway/package.json') != ''
-        run: pnpm run test:api-gateway

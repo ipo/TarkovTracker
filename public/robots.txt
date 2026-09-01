@@ -1,12 +1,4 @@
 User-Agent: *
-Disallow: /account
-Disallow: /admin
-Disallow: /api
-Disallow: /auth
-Disallow: /login
 Disallow: /not-found
-Disallow: /oauth
-Disallow: /settings
-Disallow: /team
 
 Sitemap: https://tarkovtracker.org/sitemap.xml

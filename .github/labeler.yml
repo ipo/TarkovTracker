@@ -1,9 +1,6 @@
 app:
   - changed-files:
       - any-glob-to-any-file: 'app/**/*'
-workers:
-  - changed-files:
-      - any-glob-to-any-file: 'workers/**/*'
 dependencies:
   - changed-files:
       - any-glob-to-any-file:
@@ -35,9 +32,6 @@ tests:
 i18n:
   - changed-files:
       - any-glob-to-any-file: 'app/locales/**/*'
-supabase:
-  - changed-files:
-      - any-glob-to-any-file: 'supabase/**/*'
 config:
   - changed-files:
       - any-glob-to-any-file:

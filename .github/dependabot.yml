@@ -89,13 +89,6 @@ updates:
         update-types:
           - minor
           - patch
-      cloudflare-tooling:
-        patterns:
-          - wrangler
-          - '@cloudflare/*'
-        update-types:
-          - minor
-          - patch
       release-tooling:
         dependency-type: development
         patterns:

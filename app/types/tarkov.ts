@@ -1,4 +1,3 @@
-import type { _GettersTree, StateTree } from 'pinia';
 /**
  * Type definitions for Tarkov data structures
  * This file defines the structure for:
@@ -100,9 +99,6 @@ export interface TaskTraderLevelRequirement {
   level: number;
   requirementType?: 'level' | 'reputation';
   compareMethod?: '>=' | '<' | '<=' | '>';
-}
-export interface TraderLevelRequirementWithMet extends TaskTraderLevelRequirement {
-  met: boolean;
 }
 export interface Craft {
   id: string;
@@ -395,13 +391,6 @@ export interface StoryChapter {
   objectives?: { [objectiveId: string]: StoryObjective };
   rewards?: StoryRewards | null;
 }
-export interface MemberProfile {
-  displayName: string | null;
-  gameEdition?: number;
-  gameMode?: import('@/utils/constants').GameMode;
-  level: number | null;
-  tasksCompleted: number | null;
-}
 // Query Result Types
 export interface TarkovDataQueryResult {
   tasks: Task[];
@@ -465,44 +454,6 @@ export interface NeededItemHideoutModule extends NeededItemBase {
   needType: 'hideoutModule';
   hideoutModule: HideoutModule;
 }
-export type GroupedItemInfo = Pick<
-  TarkovItem,
-  'id' | 'iconLink' | 'image512pxLink' | 'wikiLink' | 'link'
-> & {
-  /** Item display name (required - items without names are filtered out during grouping) */
-  name: string;
-};
-/**
- * Grouped needed item aggregating all requirements for a single item
- * across tasks and hideout modules.
- *
- * Counter field naming conventions:
- * - "Fir" = "Found in Raid" - items that must be found in raid for the requirement
- * - "Current" = player's current progress toward that specific requirement category
- */
-export interface GroupedNeededItem {
-  item: GroupedItemInfo;
-  /** Total count of this item required for tasks with Found in Raid requirement */
-  taskFir: number;
-  /** Player's current progress toward task FIR requirements */
-  taskFirCurrent: number;
-  /** Total count of this item required for tasks without FIR requirement */
-  taskNonFir: number;
-  /** Player's current progress toward task non-FIR requirements */
-  taskNonFirCurrent: number;
-  /** Total count of this item required for hideout modules with FIR requirement */
-  hideoutFir: number;
-  /** Player's current progress toward hideout FIR requirements */
-  hideoutFirCurrent: number;
-  /** Total count of this item required for hideout modules without FIR requirement */
-  hideoutNonFir: number;
-  /** Player's current progress toward hideout non-FIR requirements */
-  hideoutNonFirCurrent: number;
-  /** Grand total of this item required (sum of taskFir + taskNonFir + hideoutFir + hideoutNonFir) */
-  readonly total: number;
-  /** Aggregate current progress (sum of all *Current fields) */
-  readonly currentCount: number;
-}
 // Lookup Types
 export interface ObjectiveMapInfo {
   objectiveID: string;
@@ -522,35 +473,4 @@ export interface StaticMapData {
     svg?: MapSvgConfig;
     tile?: MapTileConfig;
   };
-}
-// Store Types
-export interface SystemState extends StateTree {
-  user_id?: string | null;
-  team?: string | null;
-  // Keep raw team_id from Supabase for backwards/compat and reactivity
-  team_id?: string | null;
-  // Game-mode-specific team IDs
-  pvp_team_id?: string | null;
-  pve_team_id?: string | null;
-  seasonal_team_id?: string | null;
-  // Admin status
-  is_admin?: boolean;
-}
-export interface SystemGetters extends _GettersTree<SystemState> {
-  userTeam: (state: SystemState) => string | null;
-  isAdmin: (state: SystemState) => boolean;
-}
-export interface TeamState extends StateTree {
-  id?: string | null;
-  owner?: string | null;
-  joinCode?: string | null;
-  members?: string[];
-  memberProfiles?: Record<string, MemberProfile>;
-}
-export interface TeamGetters extends _GettersTree<TeamState> {
-  teamOwner: (state: TeamState) => string | null;
-  isOwner: (state: TeamState) => boolean;
-  inviteCode: (state: TeamState) => string | null;
-  teamMembers: (state: TeamState) => string[];
-  teammates: (state: TeamState) => string[];
 }

@@ -15,10 +15,7 @@ const patterns = [
   'vitest*.ts',
   'tests/test-setup.ts',
   'tests/**/*.{ts,tsx}',
-  'scripts/**/*.json',
   'scripts/**/*.{cjs,js,mjs}',
-  'supabase/**/*.json',
-  'workers/**/*.json',
 ];
 const mode = process.argv[2];
 if (!['--check', '--write'].includes(mode)) {

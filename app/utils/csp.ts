@@ -4,16 +4,12 @@ export type ContentSecurityPolicyOptions = {
   clarityInstrumentationKey?: string;
   gaMeasurementId?: string;
   staticQuestDataBaseUrl?: string;
-  supabaseUrl?: string;
   turnstileSiteKey?: string;
 };
 const TURNSTILE_CSP_ORIGIN = 'https://challenges.cloudflare.com';
 const YOUTUBE_EMBED_ORIGIN = 'https://www.youtube-nocookie.com';
 const GITHUB_IMAGE_ORIGINS = ['https://avatars.githubusercontent.com', 'https://github.com'];
 const hasConfiguredValue = (value: string | undefined): boolean => Boolean(value?.trim());
-const isLocalHttpHost = (hostname: string): boolean => {
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
-};
 const getCspOrigin = (value: string | undefined): string | null => {
   const trimmedValue = value?.trim();
   if (!trimmedValue) {
@@ -25,27 +21,6 @@ const getCspOrigin = (value: string | undefined): string | null => {
       return null;
     }
     return parsedUrl.origin;
-  } catch {
-    return null;
-  }
-};
-const getWebSocketCspOrigin = (value: string | undefined): string | null => {
-  const trimmedValue = value?.trim();
-  if (!trimmedValue) {
-    return null;
-  }
-  try {
-    const parsedUrl = new URL(trimmedValue);
-    if (parsedUrl.protocol === 'https:') {
-      return `wss://${parsedUrl.host}`;
-    }
-    if (parsedUrl.protocol === 'http:' && isLocalHttpHost(parsedUrl.hostname)) {
-      return `ws://${parsedUrl.host}`;
-    }
-    if (parsedUrl.protocol === 'ws:' || parsedUrl.protocol === 'wss:') {
-      return parsedUrl.origin;
-    }
-    return null;
   } catch {
     return null;
   }
@@ -91,12 +66,8 @@ export const getConnectSrcSources = (options: ContentSecurityPolicyOptions = {})
     'https://raw.githubusercontent.com',
     'https://assets.tarkov.dev',
     'https://tarkovtracker.github.io',
-    'https://*.supabase.co',
-    'wss://*.supabase.co',
     getCspOrigin(options.clientLogSinkUrl),
     getCspOrigin(options.staticQuestDataBaseUrl),
-    getCspOrigin(options.supabaseUrl),
-    getWebSocketCspOrigin(options.supabaseUrl),
   ]);
 };
 export const getImgSrcSources = (options: ContentSecurityPolicyOptions = {}): string[] => {

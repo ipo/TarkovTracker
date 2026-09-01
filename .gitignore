@@ -10,7 +10,6 @@
 coverage
 dist
 test-report.junit.xml
-.wrangler
 .claude/*
 !.claude/CLAUDE.md
 .codegraph
@@ -26,7 +25,6 @@ node_modules
 .env
 .env.*
 !.env.example
-!.env.example.local
 .dev.vars
 .lighthouseci*
 

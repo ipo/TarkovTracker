@@ -32,8 +32,6 @@ comment:
 ignore:
   - 'app/locales/**'
   - 'app/**/*.d.ts'
-  - 'supabase/**'
-  - 'workers/**'
   - 'scripts/**'
   - 'tests/**'
   - 'docs/**'

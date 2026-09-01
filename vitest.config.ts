@@ -11,14 +11,7 @@ export default defineVitestConfig({
     environment: 'nuxt',
     globals: true,
     setupFiles: ['./tests/test-setup.ts'],
-    exclude: [
-      ...configDefaults.exclude,
-      'workers/**',
-      '**/*.deno.test.ts',
-      '**/node_modules/**',
-      '**/.codex/**',
-      '**/.wt/**',
-    ],
+    exclude: [...configDefaults.exclude, '**/node_modules/**', '**/.codex/**', '**/.wt/**'],
     clearMocks: true,
     restoreMocks: true,
     isolate: true,
@@ -44,9 +37,7 @@ export default defineVitestConfig({
         'docs/**',
         'public/**',
         'scripts/**',
-        'supabase/**',
         'tests/**',
-        'workers/**',
       ],
       // Shards report only imported files so Codecov can merge them without
       // zero-filled duplicates. Unsharded runs retain the full app denominator.

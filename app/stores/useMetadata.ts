@@ -5,12 +5,6 @@ import mapsData from '@/data/maps.json';
 import { type FetchResponse, isFetchError, isFetchSuccess } from '@/stores/tarkov/fetchResponse';
 import { type ObjectiveWithItems, createItemPicker } from '@/stores/tarkov/itemPicker';
 import {
-  getMetadataGameMode,
-  migrateMetadataDuplicateObjectiveProgress,
-  repairMetadataCompletedTaskObjectives,
-  repairMetadataFailedTaskStates,
-} from '@/stores/tarkov/metadataStoreBridge';
-import {
   type PromiseKey,
   getPromiseRequestIdStore,
   getPromiseRequestKeyStore,
@@ -442,7 +436,7 @@ export const useMetadataStore = defineStore('metadata', {
         this.languageCode = extractLanguageCode(effectiveLocale, [...API_SUPPORTED_LANGUAGES]);
       }
       // Update game mode
-      this.currentGameMode = gameModeOverride ?? getMetadataGameMode();
+      this.currentGameMode = gameModeOverride ?? GAME_MODES.PVP;
     },
     setLoading(isLoading: boolean) {
       this.loading = isLoading;
@@ -1031,13 +1025,9 @@ export const useMetadataStore = defineStore('metadata', {
         cacheTTL: CACHE_CONFIG.DEFAULT_TTL,
         loadingKey: 'tasksObjectivesPending',
         processData: (data) => {
-          this.mergeTaskObjectives(data.tasks, {
-            rebuildDerivedData: false,
-            repairFailedTaskStates: false,
-          });
+          this.mergeTaskObjectives(data.tasks, { rebuildDerivedData: false });
           this.hydrateTaskItems({ rebuildDerivedData: false });
           this.rebuildTaskDerivedData();
-          repairMetadataFailedTaskStates();
           this.fetchObjectiveModeCountDifferences(forceRefresh).catch((err) =>
             logger.warn('[MetadataStore] Failed to fetch objective mode count differences:', err)
           );
@@ -1618,9 +1608,9 @@ export const useMetadataStore = defineStore('metadata', {
      */
     mergeTaskObjectives(
       tasks: TarkovTaskObjectivesQueryResult['tasks'],
-      options: { rebuildDerivedData?: boolean; repairFailedTaskStates?: boolean } = {}
+      options: { rebuildDerivedData?: boolean } = {}
     ) {
-      const { rebuildDerivedData = true, repairFailedTaskStates = rebuildDerivedData } = options;
+      const { rebuildDerivedData = true } = options;
       const validUpdates = (tasks || []).filter(
         (task): task is NonNullable<TarkovTaskObjectivesQueryResult['tasks'][number]> =>
           Boolean(task?.id)
@@ -1665,15 +1655,8 @@ export const useMetadataStore = defineStore('metadata', {
         this.tasksObjectivesHydrated = this.tasks.some(
           (task) => Array.isArray(task.objectives) && task.objectives.length > 0
         );
-        if (deduped.duplicateObjectiveIds.size > 0) {
-          migrateMetadataDuplicateObjectiveProgress(deduped.duplicateObjectiveIds);
-        }
-        repairMetadataCompletedTaskObjectives();
         if (rebuildDerivedData) {
           this.rebuildTaskDerivedData();
-        }
-        if (repairFailedTaskStates) {
-          repairMetadataFailedTaskStates();
         }
       }
       perfEnd(perfTimer, {
@@ -1684,7 +1667,6 @@ export const useMetadataStore = defineStore('metadata', {
         unmatchedUpdates: Math.max(updateMap.size - matchedUpdates, 0),
         duplicateUpdates,
         rebuildDerivedData,
-        repairFailedTaskStates,
       });
       if (import.meta.env.DEV && duplicateUpdates > 0) {
         logger.debug('[MetadataStore] Duplicate task objective updates detected', {
@@ -1976,10 +1958,6 @@ export const useMetadataStore = defineStore('metadata', {
       this.tasks = markRaw(deduped.tasks);
       // Note: Don't set tasksObjectivesHydrated here - it's managed by processTasksCoreData
       // and mergeTaskObjectives to properly track the two-phase loading
-      if (deduped.duplicateObjectiveIds.size > 0) {
-        migrateMetadataDuplicateObjectiveProgress(deduped.duplicateObjectiveIds);
-      }
-      repairMetadataCompletedTaskObjectives();
       this.maps = markRaw(data.maps || []);
       this.mapSpawnsLoaded = false;
       this.traders = markRaw(data.traders || []);
@@ -1987,9 +1965,6 @@ export const useMetadataStore = defineStore('metadata', {
         this.playerLevels = markRaw(this.convertToCumulativeXP(data.playerLevels));
       }
       this.rebuildTaskDerivedData();
-      if (this.tasks.length > 0) {
-        repairMetadataFailedTaskStates();
-      }
       perfEnd(perfTimer, {
         tasks: this.tasks.length,
         maps: this.maps.length,

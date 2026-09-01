@@ -73,8 +73,7 @@ jobs:
                 case "$file" in
                   package.json | \
                   pnpm-lock.yaml | \
-                  pnpm-workspace.yaml | \
-                  workers/api-gateway/package.json)
+                  pnpm-workspace.yaml)
                     ;;
                   *)
                     printf '%s\n' "$file"
@@ -103,9 +102,6 @@ jobs:
             "Test (shard 3/4)"
             "Test (shard 4/4)"
             "Validate"
-            "Supabase DB"
-            "Systems drift check"
-            "Workers"
             "PR Meta"
             "Security Scan"
             "CodeQL"

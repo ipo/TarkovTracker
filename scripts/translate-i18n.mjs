@@ -13,7 +13,6 @@ const PROTECTED_TERMS = [
   'Escape from Tarkov',
   'Tarkov',
   'tarkov.dev',
-  'Supabase',
   'JSON',
   'API',
   'REST',

@@ -253,7 +253,7 @@ const updateObjective = <Key extends ProgressObjectKey>(
   } as ProgressObjectEntry<Key>;
 };
 // Simplified actions
-export const actions = {
+export const progressActions = {
   switchGameMode(this: UserState, mode: GameMode) {
     this.currentGameMode = mode;
   },
@@ -357,9 +357,9 @@ export const actions = {
   toggleTaskObjectiveComplete(this: UserState, objectiveId: string) {
     const isComplete = getters.isTaskObjectiveComplete(this)(objectiveId);
     if (isComplete) {
-      actions.setTaskObjectiveUncomplete.call(this, objectiveId);
+      progressActions.setTaskObjectiveUncomplete.call(this, objectiveId);
     } else {
-      actions.setTaskObjectiveComplete.call(this, objectiveId);
+      progressActions.setTaskObjectiveComplete.call(this, objectiveId);
     }
   },
   setHideoutPartComplete(this: UserState, objectiveId: string) {
@@ -374,9 +374,9 @@ export const actions = {
   toggleHideoutPartComplete(this: UserState, objectiveId: string) {
     const isComplete = getters.isHideoutPartComplete(this)(objectiveId);
     if (isComplete) {
-      actions.setHideoutPartUncomplete.call(this, objectiveId);
+      progressActions.setHideoutPartUncomplete.call(this, objectiveId);
     } else {
-      actions.setHideoutPartComplete.call(this, objectiveId);
+      progressActions.setHideoutPartComplete.call(this, objectiveId);
     }
   },
   setHideoutModuleComplete(this: UserState, hideoutId: string) {
@@ -391,9 +391,9 @@ export const actions = {
   toggleHideoutModuleComplete(this: UserState, hideoutId: string) {
     const isComplete = getters.isHideoutModuleComplete(this)(hideoutId);
     if (isComplete) {
-      actions.setHideoutModuleUncomplete.call(this, hideoutId);
+      progressActions.setHideoutModuleUncomplete.call(this, hideoutId);
     } else {
-      actions.setHideoutModuleComplete.call(this, hideoutId);
+      progressActions.setHideoutModuleComplete.call(this, hideoutId);
     }
   },
   setTraderLevel(this: UserState, traderId: string, level: number) {
@@ -453,10 +453,10 @@ export const actions = {
   toggleStoryObjectiveComplete(this: UserState, chapterId: string, objectiveId: string) {
     const isComplete = getters.isStoryObjectiveComplete(this)(chapterId, objectiveId);
     if (isComplete) {
-      actions.setStoryObjectiveUncomplete.call(this, chapterId, objectiveId);
+      progressActions.setStoryObjectiveUncomplete.call(this, chapterId, objectiveId);
     } else {
-      actions.setStoryObjectiveComplete.call(this, chapterId, objectiveId);
+      progressActions.setStoryObjectiveComplete.call(this, chapterId, objectiveId);
     }
   },
 } as const;
-export type UserActions = typeof actions;
+export type UserActions = typeof progressActions;

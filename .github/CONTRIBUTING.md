@@ -40,7 +40,7 @@ corepack enable && pnpm run setup   # installs deps + creates .env
 pnpm run dev                        # localhost:3000
 ```
 
-> Most features work without Supabase configured; auth and sync are simply disabled.
+> The viewer loads static quest data and stores progress locally in the browser.
 
 For the full setup guide, coding standards, common tasks, debugging, and commit conventions, see
 [`../docs/contributing/development.md`](../docs/contributing/development.md).
@@ -51,8 +51,7 @@ For the full setup guide, coding standards, common tasks, debugging, and commit 
    (`fix/`, `feat/`, `enhance/`, `refactor/`, `docs/`, `chore/`)
 2. Make your changes following the coding standards
 3. Self-review, run the smallest relevant validation (`pnpm run lint` for code, `pnpm run typecheck`
-   for Nuxt/TS, `pnpm --filter api-gateway run typecheck` for Workers, `pnpm test` for executable
-   code), and update docs
+   for Nuxt/TS, `pnpm test` for executable code), and update docs
 4. Open a PR using the template, link related issues, and ensure all CI checks pass
 5. Address review feedback; a maintainer merges once approved
 

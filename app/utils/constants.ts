@@ -203,7 +203,6 @@ export const API_PERMISSIONS: Record<string, { title: string; description: strin
 export const LIMITS = {
   // Maximum characters for display name
   DISPLAY_NAME_MAX_LENGTH: 15,
-  // Maximum team members (sync with Supabase edge function)
   TEAM_MAX_MEMBERS: 5,
   // Random name generation default length
   RANDOM_NAME_LENGTH: 6,

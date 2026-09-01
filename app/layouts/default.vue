@@ -1,89 +1,24 @@
 <template>
   <div class="bg-military-background text-surface-200 flex min-h-screen flex-col">
-    <!-- Skip navigation link for accessibility -->
-    <a
-      href="#main-content"
-      class="focus:bg-primary-600 sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-16 focus:z-100 focus:rounded focus:px-4 focus:py-2 focus:text-white focus:shadow-lg"
-    >
-      Skip to main content
-    </a>
-    <!-- Navigation Drawer (fixed) -->
     <NavDrawer />
-    <!-- Application Bar (fixed header) -->
-    <AppBar
-      class="transition-all duration-300 ease-in-out"
-      :style="{
-        left: mainMarginLeft,
-      }"
-    />
-    <!-- Main content area -->
-    <main
-      id="main-content"
-      tabindex="-1"
-      class="relative z-0 flex flex-1 flex-col pt-11 transition-all duration-300 ease-in-out"
-      :style="{
-        marginLeft: mainMarginLeft,
-      }"
-    >
-      <div :class="contentWrapperClass">
-        <slot />
-      </div>
+    <AppBar :style="{ left: mainMarginLeft }" />
+    <main class="flex flex-1 flex-col pt-11" :style="{ marginLeft: mainMarginLeft }">
+      <slot />
     </main>
-    <AnalyticsConsentBanner
-      :style="{
-        left: mainMarginLeft,
-        width: `calc(100% - ${mainMarginLeft})`,
-      }"
-    />
-    <PromotedTwitchEmbed />
-    <!-- Back to top button -->
-    <BackToTop />
-    <!-- Footer pinned to bottom when content is short -->
-    <AppFooter
-      class="shrink-0"
-      :style="{
-        marginLeft: mainMarginLeft,
-        width: `calc(100% - ${mainMarginLeft})`,
-      }"
-    />
+    <AppFooter :style="{ marginLeft: mainMarginLeft }" />
   </div>
 </template>
 <script setup lang="ts">
-  import { useScrollRoot } from '@/composables/useScrollRoot';
-  import { useSharedBreakpoints } from '@/composables/useSharedBreakpoints';
   import AppBar from '@/shell/AppBar.vue';
   import AppFooter from '@/shell/AppFooter.vue';
   import NavDrawer from '@/shell/NavDrawer.vue';
   import { useAppStore } from '@/stores/useApp';
-  import { logger } from '@/utils/logger';
   import { SHELL_DRAWER_COLLAPSED_WIDTH, SHELL_DRAWER_EXPANDED_WIDTH } from '@/utils/shellConfig';
-  const consentBannerImport = () => import('@/components/analytics/AnalyticsConsentBanner.vue');
-  const AnalyticsConsentBanner = defineAsyncComponent(consentBannerImport);
-  if (import.meta.client) {
-    consentBannerImport().catch((error) => {
-      logger.error('[AnalyticsConsentBanner] Failed to preload chunk:', error);
-    });
-  }
   const appStore = useAppStore();
   const { belowMd } = useSharedBreakpoints();
-  const { usesWindowScroll } = useScrollRoot();
-  const mainMarginLeft = computed(() => {
-    if (belowMd.value) {
-      return appStore.mobileDrawerExpanded
-        ? SHELL_DRAWER_EXPANDED_WIDTH
-        : SHELL_DRAWER_COLLAPSED_WIDTH;
-    }
-    return appStore.drawerRail ? SHELL_DRAWER_COLLAPSED_WIDTH : SHELL_DRAWER_EXPANDED_WIDTH;
-  });
-  useHead(
-    computed(() => ({
-      htmlAttrs: {
-        class: usesWindowScroll.value ? 'no-smooth-scroll' : undefined,
-      },
-    }))
+  const mainMarginLeft = computed(() =>
+    belowMd.value || appStore.drawerRail
+      ? SHELL_DRAWER_COLLAPSED_WIDTH
+      : SHELL_DRAWER_EXPANDED_WIDTH
   );
-  const contentWrapperClass = computed(() => [
-    'flex min-h-0 flex-1 flex-col p-0',
-    usesWindowScroll.value ? 'overflow-visible' : 'overflow-y-auto',
-  ]);
 </script>
