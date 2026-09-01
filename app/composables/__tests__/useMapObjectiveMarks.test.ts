@@ -8,6 +8,12 @@ const unlockedTasks = ref<Record<string, Record<string, boolean>>>({});
 const visibleTeamStores = ref<Record<string, Record<string, unknown>>>({ self: {} });
 const objectiveMaps = ref<Record<string, Array<{ objectiveID: string; mapID: string }>>>({});
 const objectiveGPS = ref<Record<string, Array<{ objectiveID: string; x: number; y: number }>>>({});
+const staticMapScores = ref<
+  Array<{
+    id: string;
+    quests: Array<{ finishable_here: boolean; gateway: boolean; id: string; off_goal: boolean }>;
+  }>
+>([]);
 const mapTeamAllHidden = ref(false);
 const pinnedTaskIds = ref<string[]>([]);
 const completedObjectiveIds = ref<Set<string>>(new Set());
@@ -23,6 +29,7 @@ const setup = async () => {
   visibleTeamStores.value = { self: {} };
   objectiveMaps.value = {};
   objectiveGPS.value = {};
+  staticMapScores.value = [];
   mapTeamAllHidden.value = false;
   pinnedTaskIds.value = [];
   completedObjectiveIds.value = new Set();
@@ -47,6 +54,9 @@ const setup = async () => {
     useMetadataStore: () => ({
       objectiveMaps: objectiveMaps.value,
       objectiveGPS: objectiveGPS.value,
+      get staticMapScores() {
+        return staticMapScores.value;
+      },
     }),
   }));
   vi.doMock('@/stores/usePreferences', () => ({
@@ -205,5 +215,47 @@ describe('useMapObjectiveMarks', () => {
       tasks: computed(() => tasks),
     });
     expect(mapObjectiveMarks.value.map((mark) => mark.id)).toEqual(['confirmed-objective']);
+  });
+  it('defaults to pending objectives in the map plan and can reveal other confirmed objectives', async () => {
+    const { useMapObjectiveMarks } = await setup();
+    confirmedTaskIds.value = new Set(['plan-task', 'other-task', 'done-task']);
+    completedTaskIds.value = new Set(['done-task']);
+    completedObjectiveIds.value = new Set(['done-objective']);
+    staticMapScores.value = [
+      {
+        id: 'customs',
+        quests: [
+          {
+            finishable_here: true,
+            gateway: true,
+            id: 'plan-task',
+            off_goal: false,
+          },
+        ],
+      },
+    ];
+    const tasks: Task[] = [
+      { id: 'plan-task', objectives: [objectiveWithLocation('plan-objective', 'customs')] },
+      { id: 'other-task', objectives: [objectiveWithLocation('other-objective', 'customs')] },
+      { id: 'done-task', objectives: [objectiveWithLocation('done-objective', 'customs')] },
+    ];
+    const showAllConfirmed = ref(false);
+    const { mapObjectiveMarks } = useMapObjectiveMarks({
+      mapId: computed(() => 'customs'),
+      showAllConfirmed,
+      shouldShowCompletedObjectives: computed(() => true),
+      tasks: computed(() => tasks),
+    });
+    expect(mapObjectiveMarks.value.map((mark) => mark.id)).toEqual(['plan-objective']);
+    expect(mapObjectiveMarks.value[0]?.recommendation).toEqual({
+      finishableHere: true,
+      gateway: true,
+      offGoal: false,
+    });
+    showAllConfirmed.value = true;
+    expect(mapObjectiveMarks.value.map((mark) => mark.id)).toEqual([
+      'plan-objective',
+      'other-objective',
+    ]);
   });
 });

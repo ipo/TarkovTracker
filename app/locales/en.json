@@ -968,7 +968,18 @@
         "map_complete_tasks_toggle_show": "Show hidden",
         "map_complete_tasks_toggle_hide": "Hide map-complete",
         "map_hidden_hint": "Map hidden — click to show",
-        "raid_time_tooltip": "Current in-game raid time"
+        "raid_time_tooltip": "Current in-game raid time",
+        "plan_marker_legend": "Recommended plan marker styles",
+        "gateway": "Gateway",
+        "finishable_here": "Finishable here",
+        "off_goal": "Off-goal",
+        "show_all_confirmed": "Show all confirmed",
+        "recommendation": {
+          "legend": "Map recommendations",
+          "primary": "Primary",
+          "secondary": "Secondary",
+          "neutral": "Neutral"
+        }
       },
       "pinned_tasks_section": "Pinned Tasks",
       "focused_task_section": "Focused Task",

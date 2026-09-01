@@ -682,6 +682,7 @@
     isValidMapSvgConfig,
     isValidMapTileConfig,
   } from '@/utils/mapCoordinates';
+  import { THEME_COLORS } from '@/utils/theme-colors';
   import type { TarkovMap } from '@/types/tarkov';
   import type L from 'leaflet';
   const MAP_CONTROLS_HINT_KEY = 'mapControlsHintSeen';
@@ -871,6 +872,35 @@
     showScavExtracts: props.showScavExtracts,
     t,
   });
+  const getRecommendationMarkerStyle = (mark: MapMark) => {
+    const recommendation = mark.recommendation;
+    if (!recommendation) {
+      return {
+        borderColor: mapColors.value.MARKER_BORDER,
+        dashArray: undefined,
+        pointRadius: 8,
+        weight: 2,
+        zoneCenterWeight: 1.5,
+        zoneWeight: 2.25,
+      };
+    }
+    let borderColor = mapColors.value.MARKER_BORDER;
+    if (recommendation.offGoal) {
+      borderColor = THEME_COLORS.error[500];
+    } else if (recommendation.gateway) {
+      borderColor = THEME_COLORS.info[500];
+    } else if (recommendation.finishableHere) {
+      borderColor = THEME_COLORS.success[500];
+    }
+    return {
+      borderColor,
+      dashArray: recommendation.offGoal ? '4 3' : undefined,
+      pointRadius: recommendation.finishableHere ? 9 : 8,
+      weight: recommendation.finishableHere ? 3.5 : 2,
+      zoneCenterWeight: recommendation.finishableHere ? 2.5 : 1.5,
+      zoneWeight: recommendation.finishableHere ? 3.25 : 2.25,
+    };
+  };
   const mapColorsOpen = ref(false);
   const mapSettingsOpen = ref(false);
   const mapHelpOpen = ref(false);
@@ -1541,6 +1571,7 @@
     objectiveLayer.value.clearLayers();
     objectiveMarkers.clear();
     const zoneEntries: Array<{
+      baseWeight: number;
       polygon: L.Polygon;
       centerMarker: L.CircleMarker;
       area: number;
@@ -1577,6 +1608,7 @@
       const category = getObjectiveCategory(mark);
       if (!categoryEnabled[category]) return;
       const markerColor = categoryColors[category];
+      const recommendationStyle = getRecommendationMarkerStyle(mark);
       mark.possibleLocations?.forEach((location) => {
         if (location.map.id !== props.map.id) return;
         const positions = location.positions;
@@ -1585,11 +1617,12 @@
         if (!pos) return;
         const latLng = gameToLatLng(pos.x, pos.z);
         const marker = L.circleMarker([latLng.lat, latLng.lng], {
-          radius: 8,
+          radius: recommendationStyle.pointRadius,
           fillColor: markerColor,
           fillOpacity: 0.8,
-          color: mapColors.value.MARKER_BORDER,
-          weight: 2,
+          color: recommendationStyle.borderColor,
+          dashArray: recommendationStyle.dashArray,
+          weight: recommendationStyle.weight,
         });
         pointEntries.push({ marker, objectiveId });
       });
@@ -1601,10 +1634,11 @@
         const zoneColor = markerColor;
         const polygonLatLngs = latLngs.map((ll) => [ll.lat, ll.lng]) as L.LatLngExpression[];
         const polygon = L.polygon(polygonLatLngs, {
-          color: zoneColor,
+          color: recommendationStyle.borderColor,
+          dashArray: recommendationStyle.dashArray,
           fillColor: zoneColor,
           fillOpacity: mapZoneOpacity.value,
-          weight: 2.25,
+          weight: recommendationStyle.zoneWeight,
           opacity: 0.95,
         });
         const center = polygon.getBounds().getCenter();
@@ -1612,11 +1646,13 @@
           radius: 5,
           fillColor: zoneColor,
           fillOpacity: 0.95,
-          color: mapColors.value.MARKER_BORDER,
-          weight: 1.5,
+          color: recommendationStyle.borderColor,
+          dashArray: recommendationStyle.dashArray,
+          weight: recommendationStyle.zoneCenterWeight,
           opacity: 1,
         });
         zoneEntries.push({
+          baseWeight: recommendationStyle.zoneWeight,
           polygon,
           centerMarker,
           area: calculateZoneArea(zone.outline),
@@ -1626,7 +1662,7 @@
     });
     zoneEntries
       .sort((a, b) => b.area - a.area)
-      .forEach(({ polygon, centerMarker, objectiveId }) => {
+      .forEach(({ baseWeight, polygon, centerMarker, objectiveId }) => {
         if (objectiveId) {
           attachHoverPinPopup(polygon, objectiveId, () => polygon.getBounds().getCenter());
           attachHoverPinPopup(centerMarker, objectiveId, () => centerMarker.getLatLng());
@@ -1638,7 +1674,7 @@
           })
         );
         polygon.on('mouseout', () =>
-          polygon.setStyle({ fillOpacity: mapZoneOpacity.value, weight: 2.25 })
+          polygon.setStyle({ fillOpacity: mapZoneOpacity.value, weight: baseWeight })
         );
         objectiveLayer.value!.addLayer(polygon);
         objectiveLayer.value!.addLayer(centerMarker);

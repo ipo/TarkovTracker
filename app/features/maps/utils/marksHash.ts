@@ -7,10 +7,16 @@ export interface MapMarkLocation {
   positions?: Array<{ x: number; y?: number; z: number }>;
   [key: string]: unknown;
 }
+export interface MapObjectiveRecommendation {
+  finishableHere: boolean;
+  gateway: boolean;
+  offGoal: boolean;
+}
 export interface MapMark {
   id?: string;
   zones: MapZone[];
   possibleLocations?: MapMarkLocation[];
+  recommendation?: MapObjectiveRecommendation;
   users?: string[];
   pinned?: boolean;
 }
@@ -66,6 +72,9 @@ const markLocationHashes = (mark: MapMark, mapId: string): number[] =>
 const hashMark = (hash: number, mark: MapMark, mapId: string): number => {
   let next = updateFnv1a(hash, mark.id ?? '');
   next = updateFnv1a(next, mark.pinned ? '1' : '0');
+  next = updateFnv1a(next, mark.recommendation?.finishableHere ? '1' : '0');
+  next = updateFnv1a(next, mark.recommendation?.gateway ? '1' : '0');
+  next = updateFnv1a(next, mark.recommendation?.offGoal ? '1' : '0');
   next = hashSortedValues(next, [...(mark.users ?? [])].sort(compareCodeUnits));
   next = hashSortedValues(next, markZoneHashes(mark, mapId));
   return hashSortedValues(next, markLocationHashes(mark, mapId));

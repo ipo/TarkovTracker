@@ -79,6 +79,11 @@ flowchart LR
 5. Supabase returns its offline stub before client creation. Sync, remote profile import, and every
    retained `/api/tarkov/*` helper short-circuit. Viewer configuration such as
    `/api/twitch/config` is outside this game-data boundary.
+6. In map view, the first positive ordered score is the primary map recommendation; later positive
+   scores are secondary and zero, null, or absent scores are neutral. Markers begin with pending
+   objectives for the selected map's scored confirmed quests, then the user can reveal all other
+   confirmed pending objectives. Gateway, finishable-here, and off-goal flags style marker outlines
+   while the fill continues to identify the marker owner status.
 
 ### Files
 
@@ -98,6 +103,9 @@ flowchart LR
 - Zones retain the source `map`, canonical `map_id`, all geometry and unknown exporter fields;
   adapted zones expose canonical `map` plus `sourceMapId`. Score order and all recommendation flags
   remain available on `metadataStore.staticMapScores`.
+- Map score tiers never promote zero, null, missing, or non-finite scores. If a selected map has no
+  scored quests, its pending confirmed objectives remain visible rather than presenting an empty
+  recommendation plan. Completed and failed objectives do not become plan-first markers.
 - Only the latest app-mode request may apply. PvP and Seasonal reload the three `pvp` filenames;
   PvE reloads the reserved three `pve` filenames.
 - Static viewer runtime makes no Supabase or `/api/tarkov/*` calls and disables remote profile

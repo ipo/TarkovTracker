@@ -4,6 +4,7 @@ import { usePreferencesStore } from '@/stores/usePreferences';
 import { useProgressStore } from '@/stores/useProgress';
 import { useTarkovStore } from '@/stores/useTarkov';
 import type { ComputedRef } from '#imports';
+import type { MapObjectiveRecommendation } from '@/features/maps/utils/marksHash';
 import type { Task } from '@/types/tarkov';
 type MapObjectiveZone = { map: { id: string }; outline: { x: number; z: number }[] };
 type MapObjectiveLocation = {
@@ -14,16 +15,19 @@ export type MapObjectiveMark = {
   id?: string;
   zones: MapObjectiveZone[];
   possibleLocations?: MapObjectiveLocation[];
+  recommendation?: MapObjectiveRecommendation;
   users?: string[];
   pinned?: boolean;
 };
 interface MapObjectiveMarksOptions {
   mapId: ComputedRef<string | null | undefined>;
+  showAllConfirmed?: ComputedRef<boolean>;
   shouldShowCompletedObjectives: ComputedRef<boolean>;
   tasks: ComputedRef<Task[]>;
 }
 export function useMapObjectiveMarks({
   mapId,
+  showAllConfirmed,
   shouldShowCompletedObjectives,
   tasks,
 }: MapObjectiveMarksOptions): {
@@ -38,6 +42,8 @@ export function useMapObjectiveMarks({
   const mapObjectiveMarks = computed(() => {
     if (!mapId.value) return [];
     const selectedMapId = mapId.value;
+    const mapScore = metadataStore.staticMapScores.find((score) => score.id === selectedMapId);
+    const plannedTaskIds = new Set(mapScore?.quests.map((quest) => quest.id) ?? []);
     const marks: MapObjectiveMark[] = [];
     const includeTeammates = !preferencesStore.mapTeamAllHidden;
     const teammateIds = includeTeammates
@@ -49,6 +55,10 @@ export function useMapObjectiveMarks({
     const pinnedTaskIds = new Set(preferencesStore.getPinnedTaskIds);
     tasks.value.forEach((task) => {
       if (!task.objectives) return;
+      if (showAllConfirmed && !showAllConfirmed.value && plannedTaskIds.size > 0) {
+        if (!plannedTaskIds.has(task.id)) return;
+      }
+      const recommendation = mapScore?.quests.find((quest) => quest.id === task.id);
       const objectiveMaps = metadataStore.objectiveMaps?.[task.id] ?? [];
       const objectiveGps = metadataStore.objectiveGPS?.[task.id] ?? [];
       task.objectives.forEach((obj) => {
@@ -74,6 +84,7 @@ export function useMapObjectiveMarks({
         if (teammateUsers.length > 0) {
           users.push(...teammateUsers);
         } else if (
+          !showAllConfirmed &&
           selfComplete &&
           selfTaskComplete &&
           !selfTaskFailed &&
@@ -131,6 +142,13 @@ export function useMapObjectiveMarks({
             possibleLocations,
             users,
             pinned: pinnedTaskIds.has(task.id),
+            recommendation: recommendation
+              ? {
+                  finishableHere: recommendation.finishable_here,
+                  gateway: recommendation.gateway,
+                  offGoal: recommendation.off_goal,
+                }
+              : undefined,
           });
         }
       });

@@ -338,17 +338,32 @@
             v-for="mapOption in mapOptions"
             :key="mapOption.value"
             type="button"
+            :data-recommendation-tier="mapOption.tier"
             variant="ghost"
             color="neutral"
             size="sm"
             :disabled="preferencesStore.getTaskMapView === mapOption.value"
             :aria-pressed="preferencesStore.getTaskMapView === mapOption.value"
+            :aria-label="`${mapOption.label}: ${t(`page.tasks.map.recommendation.${mapOption.tier}`)}`"
             :class="[
               'gap-1.5',
-              ...getSegmentButtonClass(preferencesStore.getTaskMapView === mapOption.value),
+              ...getMapOptionClass(
+                mapOption.tier,
+                preferencesStore.getTaskMapView === mapOption.value
+              ),
             ]"
             @click="onMapSelect(mapOption)"
           >
+            <UIcon
+              v-if="mapOption.tier === 'primary'"
+              name="i-mdi-star"
+              class="h-3.5 w-3.5 shrink-0"
+            />
+            <UIcon
+              v-else-if="mapOption.tier === 'secondary'"
+              name="i-mdi-map-marker"
+              class="h-3.5 w-3.5 shrink-0"
+            />
             <span class="text-xs font-medium whitespace-nowrap">{{ mapOption.label }}</span>
             <span
               :class="[
@@ -359,6 +374,24 @@
               {{ mapOption.count ?? 0 }}
             </span>
           </UButton>
+        </div>
+        <div
+          class="text-surface-400 mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]"
+          role="list"
+          :aria-label="t('page.tasks.map.recommendation.legend')"
+        >
+          <span class="inline-flex items-center gap-1" role="listitem">
+            <UIcon name="i-mdi-star" class="text-warning-300 h-3.5 w-3.5" />
+            {{ t('page.tasks.map.recommendation.primary') }}
+          </span>
+          <span class="inline-flex items-center gap-1" role="listitem">
+            <UIcon name="i-mdi-map-marker" class="text-info-300 h-3.5 w-3.5" />
+            {{ t('page.tasks.map.recommendation.secondary') }}
+          </span>
+          <span class="inline-flex items-center gap-1" role="listitem">
+            <UIcon name="i-mdi-circle-outline" class="text-surface-500 h-3.5 w-3.5" />
+            {{ t('page.tasks.map.recommendation.neutral') }}
+          </span>
         </div>
       </div>
       <div
@@ -412,6 +445,10 @@
 <script setup lang="ts">
   import { usePageSettingsDrawer } from '@/composables/usePageSettingsDrawer';
   import { useTaskFiltering } from '@/composables/useTaskFiltering';
+  import {
+    getMapRecommendationTier,
+    type MapRecommendationTier,
+  } from '@/features/tasks/mapRecommendation';
   import { useMetadataStore } from '@/stores/useMetadata';
   import { usePreferencesStore } from '@/stores/usePreferences';
   import { useProgressStore } from '@/stores/useProgress';
@@ -531,6 +568,28 @@
       isDimmed ? 'opacity-50' : '',
     ];
   };
+  const mapRecommendationClasses: Record<
+    MapRecommendationTier,
+    { active: string; inactive: string }
+  > = {
+    primary: {
+      active: 'border-warning-400/50 bg-warning-500/15 text-warning-100 ring-1 ring-warning-400/25',
+      inactive:
+        'border-warning-500/25 text-warning-200 hover:border-warning-400/45 hover:bg-warning-500/10',
+    },
+    secondary: {
+      active: 'border-info-400/50 bg-info-500/15 text-info-100 ring-1 ring-info-400/25',
+      inactive: 'border-info-500/25 text-info-200 hover:border-info-400/45 hover:bg-info-500/10',
+    },
+    neutral: {
+      active: selectedToggleClass,
+      inactive: secondaryToggleInactiveClass,
+    },
+  };
+  const getMapOptionClass = (tier: MapRecommendationTier, isActive: boolean): string[] => [
+    toggleButtonBaseClass,
+    isActive ? mapRecommendationClasses[tier].active : mapRecommendationClasses[tier].inactive,
+  ];
   const getTeammateDisplayName = (teamId: string): string => {
     return progressStore.getDisplayName(teamId) || teamId;
   };
@@ -672,6 +731,7 @@
       label: map.name,
       value: map.id,
       count: counts[map.id] ?? 0,
+      tier: getMapRecommendationTier(map.id, metadataStore.staticMapScores),
     }));
   });
   const onMapSelect = (selected: { label: string; value: string }) => {

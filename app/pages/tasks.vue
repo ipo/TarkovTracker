@@ -109,6 +109,54 @@
                 >
                   <div v-show="isMapPanelExpanded" id="tasks-map-panel-content">
                     <template v-if="selectedMapData">
+                      <div
+                        class="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+                        data-testid="map-plan-controls"
+                      >
+                        <div
+                          class="text-surface-400 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs"
+                          role="list"
+                          :aria-label="t('page.tasks.map.plan_marker_legend')"
+                        >
+                          <span class="inline-flex items-center gap-1" role="listitem">
+                            <UIcon name="i-mdi-source-branch" class="text-info-300 h-3.5 w-3.5" />
+                            {{ t('page.tasks.map.gateway') }}
+                          </span>
+                          <span class="inline-flex items-center gap-1" role="listitem">
+                            <UIcon name="i-mdi-check-circle" class="text-success-300 h-3.5 w-3.5" />
+                            {{ t('page.tasks.map.finishable_here') }}
+                          </span>
+                          <span class="inline-flex items-center gap-1" role="listitem">
+                            <UIcon
+                              name="i-mdi-dots-horizontal"
+                              class="text-error-300 h-3.5 w-3.5"
+                            />
+                            {{ t('page.tasks.map.off_goal') }}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          data-testid="map-show-all-confirmed"
+                          :aria-pressed="showAllConfirmedMapObjectives"
+                          class="focus-visible:ring-primary-500 focus-visible:ring-offset-surface-800 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                          :class="
+                            showAllConfirmedMapObjectives
+                              ? 'border-primary-500/45 bg-primary-500/12 text-primary-100'
+                              : 'text-surface-300 hover:text-surface-100 border-white/10 hover:bg-white/5'
+                          "
+                          @click="showAllConfirmedMapObjectives = !showAllConfirmedMapObjectives"
+                        >
+                          <UIcon
+                            :name="
+                              showAllConfirmedMapObjectives
+                                ? 'i-mdi-eye-off-outline'
+                                : 'i-mdi-eye-outline'
+                            "
+                            class="h-3.5 w-3.5"
+                          />
+                          {{ t('page.tasks.map.show_all_confirmed') }}
+                        </button>
+                      </div>
                       <LeafletMapComponent
                         ref="leafletMapRef"
                         :map="selectedMapData"
@@ -659,13 +707,12 @@
     }
     isMapPanelExpanded.value = !isMapPanelExpanded.value;
   };
-  const sourceMapTasks = computed(() =>
-    isSearchActive.value ? filteredTasks.value : visibleTasks.value
-  );
+  const showAllConfirmedMapObjectives = ref(false);
   const { mapObjectiveMarks } = useMapObjectiveMarks({
     mapId: selectedMapId,
+    showAllConfirmed: showAllConfirmedMapObjectives,
     shouldShowCompletedObjectives,
-    tasks: sourceMapTasks,
+    tasks,
   });
   const impactEligibleTaskIds = computed<Set<string> | undefined>(() => {
     if (!getRespectTaskFiltersForImpact.value) return undefined;

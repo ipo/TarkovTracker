@@ -33,7 +33,9 @@ type SetupOptions = {
     getHideCompletedMapObjectives: boolean;
     taskTeamAllHidden: boolean;
   }>;
+  maps?: Array<{ id: string; name: string }>;
   sortedTraders?: Array<{ id: string; name: string }>;
+  staticMapScores?: Array<{ id: string; score: number | null }>;
   traderCounts?: Record<string, number>;
   mapTaskTotals?: Record<string, number>;
   mapTaskTotalsHideCompleted?: Record<string, number>;
@@ -87,6 +89,7 @@ const setup = async (options: SetupOptions = {}) => {
   const traderCounts = options.traderCounts ?? { 'trader-1': 2 };
   const mapTaskTotals = options.mapTaskTotals ?? { 'map-1': 2 };
   const mapTaskTotalsHideCompleted = options.mapTaskTotalsHideCompleted ?? { 'map-1': 1 };
+  const maps = options.maps ?? [{ id: 'map-1', name: 'Map One' }];
   const statusCounts = {
     all: 2,
     available: 1,
@@ -119,8 +122,9 @@ const setup = async (options: SetupOptions = {}) => {
   vi.doMock('@/stores/useMetadata', () => ({
     useMetadataStore: () => ({
       tasks: [{ id: 'task-1' }],
-      mapsWithSvg: [{ id: 'map-1', name: 'Map One' }],
+      mapsWithSvg: maps,
       sortedTraders,
+      staticMapScores: options.staticMapScores ?? [],
     }),
   }));
   vi.doMock('@/stores/usePreferences', () => ({
@@ -215,6 +219,33 @@ describe('TaskFilterBar', () => {
     expect(mapButton).toBeTruthy();
     expect(mapButton!.text()).toContain('1');
     expect(mapButton!.text()).not.toContain('4');
+  });
+  it('renders ordered positive scores as primary and secondary map recommendations', async () => {
+    const { TaskFilterBar } = await setup({
+      preferencesStore: {
+        getTaskPrimaryView: 'maps',
+      },
+      maps: [
+        { id: 'primary', name: 'Primary Map' },
+        { id: 'secondary', name: 'Secondary Map' },
+        { id: 'neutral', name: 'Neutral Map' },
+      ],
+      staticMapScores: [
+        { id: 'primary', score: 12 },
+        { id: 'secondary', score: 1 },
+        { id: 'neutral', score: 0 },
+      ],
+    });
+    const wrapper = mountTaskFilterBar(TaskFilterBar);
+    const primary = wrapper.find('button[data-recommendation-tier="primary"]');
+    const secondary = wrapper.find('button[data-recommendation-tier="secondary"]');
+    const neutral = wrapper.find('button[data-recommendation-tier="neutral"]');
+    expect(primary.text()).toContain('Primary Map');
+    expect(secondary.text()).toContain('Secondary Map');
+    expect(neutral.text()).toContain('Neutral Map');
+    expect(primary.classes()).toContain('text-warning-200');
+    expect(secondary.classes()).toContain('text-info-200');
+    expect(neutral.classes()).toContain('text-surface-400');
   });
   it('shows only traders with non-zero task counts for the active filter', async () => {
     const { TaskFilterBar } = await setup({
