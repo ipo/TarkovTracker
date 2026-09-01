@@ -21,6 +21,7 @@ and have an agent verify the answer against the code.
 
 ## Systems covered
 
+0. [Static quest viewer hydration](#0-static-quest-viewer-hydration) — active client data path
 1. [Tarkov.dev data integration](#1-tarkovdev-data-integration) — where game data comes from
 2. [Data fetching pipeline](#2-data-fetching-pipeline) — retries, timeouts, translations, dedup
 3. [Multi-layer caching](#3-multi-layer-caching) — the four cache layers and how they fall through
@@ -40,11 +41,77 @@ and have an agent verify the answer against the code.
 
 ---
 
+## 0. Static quest viewer hydration
+
+**Summary.** The active SPA is a read-only static viewer. It fetches exporter schema-v1
+`tasks|state|scores.<file-mode>.json` directly from a public base URL. The exporter currently emits
+`pvp`; `pve` is reserved. Internal PvP and Seasonal use `pvp`, while internal PvE uses `pve`. The
+default base is `/quest-data`; `NUXT_PUBLIC_STATIC_QUEST_DATA_BASE_URL` accepts a relative path or
+HTTP(S) LAN host. Supabase and retained Tarkov data APIs are disabled in this runtime.
+
+```mermaid
+flowchart LR
+    Mode["App mode: pvp/pve/seasonal"] --> FileMode["File mode: pvp/pve/pvp"]
+    FileMode --> Loader["staticQuestHydration.ts"]
+    Base["Public or LAN base URL"] --> Loader
+    Loader --> Tasks["tasks.file-mode.json"]
+    Loader --> State["state.file-mode.json"]
+    Loader --> Scores["scores.file-mode.json"]
+    Tasks --> Metadata["useMetadataStore"]
+    Scores --> Metadata
+    State --> Progress["useTarkovStore mode progress"]
+    Metadata --> Marks["useMapObjectiveMarks"]
+    Progress --> Marks
+```
+
+### Flow
+
+1. `metadata.client.ts` registers one static hydration callback and starts the selected mode load.
+2. The adapter fetches all three same-mode documents concurrently and validates their mode and
+   `schema_version` before shaping task, map, trader, objective, zone, item, and progress objects.
+3. Only quest and objective entries present in `state.<file-mode>.json` become task progress.
+   Active state ids also replace legacy inferred availability. Catalog-only entries cannot become
+   visible or create markers; unknown state ids remain progress without manufacturing tasks.
+4. The completed bundle replaces metadata plus task/objective progress for that app mode in one
+   apply step. It persists ordered scores/flags and full zone geometry. A request generation fence
+   discards a slower response after a newer selection; a current failure restores the last applied
+   mode.
+5. Supabase returns its offline stub before client creation. Sync, remote profile import, and every
+   retained `/api/tarkov/*` helper short-circuit. Viewer configuration such as
+   `/api/twitch/config` is outside this game-data boundary.
+
+### Files
+
+- `app/utils/staticQuestHydration.ts` — schema validation, URL construction, shaping, race fence.
+- `app/plugins/metadata.client.ts` — boot registration and public-base runtime configuration.
+- `app/plugins/supabase.client.ts` — static-mode Supabase short circuit.
+- `app/stores/tarkov/staticQuestStoreBridge.ts` — awaited mode-switch hydration callback.
+- `app/composables/useMapObjectiveMarks.ts` — confirmed-state marker gate.
+- `public/quest-data/` — small development and acceptance fixtures.
+
+### Invariants
+
+- All three documents must declare schema version 1 and the resolved file mode; mixed or malformed
+  bundles fail without partially applying state.
+- `state.<file-mode>.json` is the only authority for confirmed and active quests. Prerequisite
+  inference must never add a catalog-only quest to availability or self markers.
+- Zones retain the source `map`, canonical `map_id`, all geometry and unknown exporter fields;
+  adapted zones expose canonical `map` plus `sourceMapId`. Score order and all recommendation flags
+  remain available on `metadataStore.staticMapScores`.
+- Only the latest app-mode request may apply. PvP and Seasonal reload the three `pvp` filenames;
+  PvE reloads the reserved three `pve` filenames.
+- Static viewer runtime makes no Supabase or `/api/tarkov/*` calls and disables remote profile
+  import. A configured absolute base must use HTTP(S); HTTPS deployments remain subject to browser
+  mixed-content rules when pointed at an HTTP LAN host.
+
+---
+
 ## 1. Tarkov.dev data integration
 
-**Summary.** TarkovTracker does not ship its own copy of the game database. Static game data
-(tasks, hideout stations, items, maps, traders, prestige levels, player levels, map spawns) comes
-from the community-maintained `json.tarkov.dev` static JSON API. The browser never calls
+**Summary.** This retained server pipeline is not used by the static viewer described above. In the
+full tracker implementation, TarkovTracker does not ship its own copy of the game database. Static
+game data (tasks, hideout stations, items, maps, traders, prestige levels, player levels, map spawns)
+comes from the community-maintained `json.tarkov.dev` static JSON API. The browser never calls
 `json.tarkov.dev` directly — every request goes through our own Nitro server routes under
 `/api/tarkov/*`. The server route fetches from upstream, adapts the raw JSON into the shape our
 client expects, and (for most endpoints) applies corrections (see [Overlay](#4-overlay-corrections))

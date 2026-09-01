@@ -142,9 +142,18 @@ export interface TaskObjective {
   maps?: { id: string; name?: string }[];
   requiredKeys?: TarkovItem[][];
   zones?: Array<{
+    id?: string;
     map?: { id: string };
+    map_id?: string;
+    sourceMapId?: string;
+    name?: string;
     outline?: Array<{ x: number; y: number; z: number }>;
     position?: { x: number; y: number; z: number };
+    size?: { x: number; y: number; z: number };
+    top?: number;
+    bottom?: number;
+    terrainElevation?: number;
+    [key: string]: unknown;
   }>;
   possibleLocations?: Array<{
     map?: { id: string };

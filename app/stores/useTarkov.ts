@@ -65,6 +65,10 @@ import {
   performReset,
   resolveInitialSyncState,
 } from '@/stores/tarkov/resetEngine';
+import {
+  hasStaticQuestHydrationHook,
+  hydrateStaticQuestStores,
+} from '@/stores/tarkov/staticQuestStoreBridge';
 import { recordLocalSyncTime, resetSyncTimeline } from '@/stores/tarkov/syncTimeline';
 import { useMetadataStore } from '@/stores/useMetadata';
 import { delay } from '@/utils/async';
@@ -81,6 +85,7 @@ import {
   sanitizeOwnedUserState,
   sanitizeTarkovUid,
 } from '@/utils/progressSanitizers';
+import { isStaticQuestMode, isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import {
   getCurrentSupabaseUserId,
@@ -297,8 +302,25 @@ const tarkovActions = {
     return removedModules.length;
   },
   async switchGameMode(this: TarkovStoreInstance, mode: GameMode) {
+    const previousMode = this.currentGameMode;
     actions.switchGameMode.call(this, mode);
-    await syncProgressIfLoggedIn(this, 'Error syncing gamemode to backend:');
+    if (!hasStaticQuestHydrationHook()) {
+      await syncProgressIfLoggedIn(this, 'Error syncing gamemode to backend:');
+      return;
+    }
+    try {
+      await hydrateStaticQuestStores(mode);
+      return;
+    } catch (error) {
+      if (this.currentGameMode === mode) {
+        const metadataMode = useMetadataStore().currentGameMode;
+        actions.switchGameMode.call(
+          this,
+          isStaticQuestMode(metadataMode) ? metadataMode : previousMode
+        );
+      }
+      throw error;
+    }
   },
   async migrateDataIfNeeded(this: TarkovStoreInstance) {
     const needsMigration =
@@ -1182,6 +1204,10 @@ export function resetTarkovStoreForSessionTransition(
   clearProgressStorageSafely();
 }
 export async function initializeTarkovSync() {
+  if (isStaticQuestModeEnabled()) {
+    logger.debug('[TarkovStore] Skipping Supabase sync in static quest mode');
+    return;
+  }
   const tarkovStore = useTarkovStore();
   const { $supabase } = useNuxtApp();
   if (import.meta.client && $supabase.user.loggedIn) {

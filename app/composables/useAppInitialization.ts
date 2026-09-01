@@ -9,6 +9,7 @@ import {
   useTarkovStore,
 } from '@/stores/useTarkov';
 import { logger } from '@/utils/logger';
+import { isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 interface AccountActivityResponse {
   recorded: boolean;
 }
@@ -34,6 +35,7 @@ export function useAppInitialization() {
     if (!metadataStore.hasInitialized || metadataStore.languageCode === previousLanguageCode) {
       return;
     }
+    if (isStaticQuestModeEnabled()) return;
     try {
       await metadataStore.fetchAllData(false);
     } catch (error) {

@@ -1,6 +1,14 @@
+import { registerStaticQuestHydrationHook } from '@/stores/tarkov/staticQuestStoreBridge';
 import { useMetadataStore } from '@/stores/useMetadata';
 import { useTarkovStore } from '@/stores/useTarkov';
 import { logger } from '@/utils/logger';
+import {
+  applyStaticQuestHydration,
+  createStaticQuestHydrator,
+  isStaticQuestModeEnabled,
+  loadStaticQuestHydration,
+} from '@/utils/staticQuestHydration';
+import type { GameMode } from '@/utils/constants';
 /**
  * Plugin to initialize the metadata store
  * This ensures the store is properly initialized and data is fetched
@@ -29,6 +37,60 @@ export default defineNuxtPlugin((nuxtApp) => {
     '/supporter',
     '/terms-of-service',
   ];
+  const runtimeConfig = useRuntimeConfig();
+  if (isStaticQuestModeEnabled()) {
+    const baseUrl = String(runtimeConfig.public.staticQuestDataBaseUrl || '/quest-data');
+    const hydrateLatest = createStaticQuestHydrator(
+      (mode) => loadStaticQuestHydration(baseUrl, mode, (url) => $fetch(url)),
+      (hydration, isLatest) =>
+        applyStaticQuestHydration(hydration, metadataStore, tarkovStore, isLatest)
+    );
+    let pendingHydrations = 0;
+    const hydrateMode = async (mode: GameMode): Promise<boolean> => {
+      pendingHydrations += 1;
+      metadataStore.loading = true;
+      try {
+        return await hydrateLatest(mode);
+      } catch (error) {
+        metadataStore.error = error instanceof Error ? error : new Error(String(error));
+        metadataStore.initializationFailed = true;
+        throw error;
+      } finally {
+        pendingHydrations -= 1;
+        metadataStore.loading = pendingHydrations > 0;
+      }
+    };
+    registerStaticQuestHydrationHook(hydrateMode);
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      watch(
+        () => route.path,
+        (path) => {
+          const shouldLoad = !SKIP_METADATA_PATH_PREFIXES.some(
+            (prefix) => path === prefix || path.startsWith(`${prefix}/`)
+          );
+          if (shouldLoad && !metadataStore.initialized) {
+            void hydrateMode(tarkovStore.getCurrentGameMode()).catch((error) => {
+              logger.error('[MetadataPlugin] Static quest hydration failed', error);
+            });
+          }
+        },
+        { immediate: true }
+      );
+    };
+    if (typeof nuxtApp.hook === 'function') {
+      nuxtApp.hook('app:mounted', start);
+    } else {
+      start();
+    }
+    return {
+      provide: {
+        metadata: metadataStore,
+      },
+    };
+  }
   // Initialize the metadata store and fetch data (non-blocking)
   // This allows the app to render immediately while data loads in the background
   const MAX_ATTEMPTS = 3;

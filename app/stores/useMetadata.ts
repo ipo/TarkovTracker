@@ -16,6 +16,7 @@ import {
   getPromiseRequestKeyStore,
   getPromiseStore,
 } from '@/stores/tarkov/promiseStore';
+import { hydrateStaticQuestStores } from '@/stores/tarkov/staticQuestStoreBridge';
 import {
   API_GAME_MODES,
   API_SUPPORTED_LANGUAGES,
@@ -33,6 +34,12 @@ import { queueIdleTask } from '@/utils/idleScheduler';
 import { logger } from '@/utils/logger';
 import { perfEnd, perfStart } from '@/utils/perf';
 import { inferNewBeginningPrestigeLevel } from '@/utils/prestige';
+import {
+  isStaticQuestMode,
+  isStaticQuestModeEnabled,
+  type StaticQuestFileMode,
+  type StaticQuestMapScore,
+} from '@/utils/staticQuestHydration';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import { normalizeStoryChapter } from '@/utils/storylineObjectives';
 import {
@@ -131,6 +138,8 @@ interface MetadataState {
   itemsById: Map<string, TarkovItem>;
   prestigeLevels: PrestigeLevel[];
   staticMapData: StaticMapData | null;
+  staticMapScores: StaticQuestMapScore[];
+  staticQuestFileMode: StaticQuestFileMode | null;
   // Processed data
   taskGraph: TaskGraph;
   taskById: Map<string, Task>;
@@ -151,6 +160,8 @@ interface MetadataState {
   languageCode: string;
   currentGameMode: string;
   lastCachePurgeCheckAt: number;
+  confirmedStaticTaskIds: string[];
+  confirmedStaticUnlockedTaskIds: string[];
 }
 const isNewBeginningTask = (task: Task): boolean => {
   if (!task?.id) return false;
@@ -199,6 +210,8 @@ export const useMetadataStore = defineStore('metadata', {
     itemsById: markRaw(new Map<string, TarkovItem>()),
     prestigeLevels: markRaw([]),
     staticMapData: null,
+    staticMapScores: markRaw([]),
+    staticQuestFileMode: null,
     taskGraph: markRaw(createGraph()),
     taskById: markRaw(new Map<string, Task>()),
     hideoutGraph: markRaw(createGraph()),
@@ -216,6 +229,8 @@ export const useMetadataStore = defineStore('metadata', {
     languageCode: 'en',
     currentGameMode: GAME_MODES.PVP,
     lastCachePurgeCheckAt: 0,
+    confirmedStaticTaskIds: [],
+    confirmedStaticUnlockedTaskIds: [],
   }),
   getters: {
     // Computed properties for tasks
@@ -522,6 +537,7 @@ export const useMetadataStore = defineStore('metadata', {
       promiseRequestKey?: string;
       throwOnError?: boolean;
     }): Promise<void> {
+      if (isStaticQuestModeEnabled() && config.endpoint.startsWith('/api/tarkov/')) return;
       const { promiseKey, promiseRequestKey, forceRefresh = false } = config;
       if (promiseKey) {
         const promises = getPromiseStore(this);
@@ -757,6 +773,7 @@ export const useMetadataStore = defineStore('metadata', {
      * Check if the server has purged cache and clear local cache if needed.
      */
     async checkCachePurge(): Promise<void> {
+      if (isStaticQuestModeEnabled()) return;
       if (typeof window === 'undefined') return;
       const now = Date.now();
       const storedCheckRaw = localStorage.getItem(CACHE_PURGE_CHECK_STORAGE_KEY);
@@ -822,6 +839,13 @@ export const useMetadataStore = defineStore('metadata', {
         } | null;
       } = {}
     ) {
+      if (isStaticQuestModeEnabled()) {
+        const mode = isStaticQuestMode(this.currentGameMode)
+          ? this.currentGameMode
+          : GAME_MODES.PVP;
+        await hydrateStaticQuestStores(mode);
+        return;
+      }
       const { deferHeavy = false, cachedData = null } = options;
       const perfTimer = perfStart('[Metadata] fetchAllData', { forceRefresh, deferHeavy });
       this.checkCachePurge().catch((err) =>
@@ -1034,6 +1058,11 @@ export const useMetadataStore = defineStore('metadata', {
       return this.fetchPersistentObjectiveModeCountDifferences(forceRefresh);
     },
     async fetchPersistentObjectiveModeCountDifferences(forceRefresh = false) {
+      if (isStaticQuestModeEnabled()) {
+        this.objectiveModeCountDifferences = markRaw({});
+        this.objectiveModeCountDifferencesHydrated = true;
+        return;
+      }
       const promiseStore = getPromiseStore(this);
       const existingPromise = promiseStore.objectiveModeCountDifferencesPromise;
       if (existingPromise && !forceRefresh) {
@@ -2070,6 +2099,10 @@ export const useMetadataStore = defineStore('metadata', {
       this.tasksObjectivesPending = false;
       this.tasksObjectivesHydrated = false;
       this.mapSpawnsLoaded = false;
+      this.staticMapScores = markRaw([]);
+      this.staticQuestFileMode = null;
+      this.confirmedStaticTaskIds = [];
+      this.confirmedStaticUnlockedTaskIds = [];
       this.mapSpawnsLoading = false;
       this.mapSpawnsError = null;
     },

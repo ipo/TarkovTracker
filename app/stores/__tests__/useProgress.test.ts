@@ -2,6 +2,11 @@ import { createPinia, setActivePinia } from 'pinia';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
 import { TASK_ID_REGISTRY } from '@/utils/constants';
+const staticQuestRuntime = vi.hoisted(() => ({ enabled: false }));
+vi.mock('@/utils/staticQuestHydration', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/staticQuestHydration')>()),
+  isStaticQuestModeEnabled: () => staticQuestRuntime.enabled,
+}));
 type TraderProgress = Record<string, { level?: number; reputation?: number }>;
 const createProgressData = (
   taskCompletions: Record<string, unknown>,
@@ -47,6 +52,8 @@ const setupMocks = ({
   tasks = [{ id: 'task-1', name: 'Task One' }],
   traders = [],
   tasksRequireTraderLevels,
+  staticQuestMode = false,
+  confirmedStaticUnlockedTaskIds = [],
 }: {
   selfCompletions?: Record<string, unknown>;
   teammateCompletions?: Record<string, unknown>;
@@ -55,8 +62,11 @@ const setupMocks = ({
   tasks?: Array<Record<string, unknown>>;
   traders?: Array<Record<string, unknown>>;
   tasksRequireTraderLevels?: boolean;
+  staticQuestMode?: boolean;
+  confirmedStaticUnlockedTaskIds?: string[];
 }) => {
   vi.resetModules();
+  staticQuestRuntime.enabled = staticQuestMode;
   setActivePinia(createPinia());
   const selfStore = {
     $state: selfState ?? createStoreState({ pvpCompletions: selfCompletions }),
@@ -86,6 +96,7 @@ const setupMocks = ({
       hideoutStations: [],
       playerLevels: [],
       editions: [],
+      confirmedStaticUnlockedTaskIds,
     }),
   }));
   vi.doMock('@/stores/useTarkov', () => ({
@@ -97,6 +108,19 @@ const setupMocks = ({
   };
 };
 describe('useProgressStore', () => {
+  it('uses only confirmed active state ids in static quest mode', async () => {
+    setupMocks({
+      staticQuestMode: true,
+      confirmedStaticUnlockedTaskIds: ['confirmed-active'],
+      tasks: [
+        { id: 'confirmed-active', name: 'Confirmed Active' },
+        { id: 'catalog-only', name: 'Catalog Only' },
+      ],
+    });
+    const { useProgressStore } = await import('@/stores/useProgress');
+    const store = useProgressStore();
+    expect(store.unlockedTasks).toEqual({ 'confirmed-active': { self: true } });
+  });
   it('treats boolean teammate completions as completed', async () => {
     setupMocks({
       selfCompletions: { 'task-1': { complete: false, failed: false } },

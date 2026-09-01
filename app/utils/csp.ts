@@ -3,6 +3,7 @@ export type ContentSecurityPolicyOptions = {
   clientLogSinkUrl?: string;
   clarityInstrumentationKey?: string;
   gaMeasurementId?: string;
+  staticQuestDataBaseUrl?: string;
   supabaseUrl?: string;
   turnstileSiteKey?: string;
 };
@@ -93,6 +94,7 @@ export const getConnectSrcSources = (options: ContentSecurityPolicyOptions = {})
     'https://*.supabase.co',
     'wss://*.supabase.co',
     getCspOrigin(options.clientLogSinkUrl),
+    getCspOrigin(options.staticQuestDataBaseUrl),
     getCspOrigin(options.supabaseUrl),
     getWebSocketCspOrigin(options.supabaseUrl),
   ]);

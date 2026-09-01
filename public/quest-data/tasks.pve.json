@@ -1,0 +1,31 @@
+{
+  "mode": "pve",
+  "schema_version": 1,
+  "tasks": {
+    "fixture-pve-task": {
+      "id": "fixture-pve-task",
+      "english_name": "Static PvE quest",
+      "trader": { "id": "fixture-trader", "english_name": "Static trader" },
+      "map_ids": ["customs"],
+      "required_keys": [],
+      "objectives": [
+        {
+          "id": "fixture-pve-objective",
+          "english_description": "Visit the marked Customs location",
+          "type": "visit",
+          "optional": false,
+          "map_ids": ["customs"],
+          "required_items": [],
+          "zones": [
+            {
+              "id": "fixture-pve-zone",
+              "map": "customs",
+              "map_id": "customs",
+              "position": { "x": 10, "y": 0, "z": 20 }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "mode": "pve",
+  "schema_version": 1,
+  "quests": {
+    "fixture-pve-task": {
+      "id": "fixture-pve-task",
+      "status": "active",
+      "objectives": [{ "id": "fixture-pve-objective", "completed": false, "pending": true }]
+    }
+  }
+}

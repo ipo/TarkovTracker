@@ -1,0 +1,15 @@
+{
+  "mode": "pve",
+  "schema_version": 1,
+  "maps": [
+    {
+      "id": "customs",
+      "english_name": "Customs",
+      "score": 1,
+      "gateway": false,
+      "off_goal": false,
+      "finishable_here": true,
+      "quests": []
+    }
+  ]
+}

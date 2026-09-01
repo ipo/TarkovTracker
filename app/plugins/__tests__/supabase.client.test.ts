@@ -7,6 +7,7 @@ import { createDeferred } from '@/utils/test-helpers';
 import type { SupabasePlugin } from '@/types/supabase-plugin';
 const runtimeConfig = {
   public: {
+    staticQuestMode: false,
     supabaseAnonKey: 'test-anon-key',
     supabaseUrl: 'https://test.supabase.co',
   },
@@ -114,6 +115,7 @@ describe('supabase plugin', () => {
     offlineFallbackMock.mockReturnValue(true);
     runtimeConfig.public.supabaseAnonKey = 'test-anon-key';
     runtimeConfig.public.supabaseUrl = 'https://test.supabase.co';
+    runtimeConfig.public.staticQuestMode = false;
     localStorage.setItem('sb-test-auth-token', 'token');
     localStorage.setItem(STORAGE_KEYS.progress, 'progress-state');
     localStorage.setItem(STORAGE_KEYS.preferences, 'preferences-state');
@@ -157,6 +159,16 @@ describe('supabase plugin', () => {
         },
       })
     );
+  });
+  it('never initializes Supabase when static quest mode is enabled', async () => {
+    runtimeConfig.public.staticQuestMode = true;
+    const plugin = (await import('@/plugins/supabase.client')).default;
+    const result = (await plugin.setup?.({} as Parameters<NonNullable<typeof plugin.setup>>[0])) as
+      SupabasePluginProvide | undefined;
+    expect(result?.provide.supabase.isOfflineMode).toBe(true);
+    expect(result?.provide.supabase.user.loggedIn).toBe(false);
+    await expect(result?.provide.supabase.ready()).resolves.toBeUndefined();
+    expect(mockCreateClient).not.toHaveBeenCalled();
   });
   it('exchanges an oauth callback code when ready is called', async () => {
     localStorage.removeItem('sb-test-auth-token');

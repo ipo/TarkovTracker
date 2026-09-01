@@ -13,6 +13,7 @@ const pinnedTaskIds = ref<string[]>([]);
 const completedObjectiveIds = ref<Set<string>>(new Set());
 const completedTaskIds = ref<Set<string>>(new Set());
 const failedTaskIds = ref<Set<string>>(new Set());
+const confirmedTaskIds = ref<Set<string>>(new Set());
 const setup = async () => {
   vi.resetModules();
   objectiveCompletions.value = {};
@@ -27,6 +28,7 @@ const setup = async () => {
   completedObjectiveIds.value = new Set();
   completedTaskIds.value = new Set();
   failedTaskIds.value = new Set();
+  confirmedTaskIds.value = new Set();
   vi.doMock('pinia', async () => {
     const actual = await vi.importActual<typeof import('pinia')>('pinia');
     return {
@@ -71,6 +73,11 @@ const setup = async () => {
       isTaskObjectiveComplete: (objId: string) => completedObjectiveIds.value.has(objId),
       isTaskComplete: (taskId: string) => completedTaskIds.value.has(taskId),
       isTaskFailed: (taskId: string) => failedTaskIds.value.has(taskId),
+      getCurrentProgressData: () => ({
+        taskCompletions: Object.fromEntries(
+          [...confirmedTaskIds.value].map((taskId) => [taskId, { complete: false }])
+        ),
+      }),
     }),
   }));
   const { useMapObjectiveMarks } = await import('@/composables/useMapObjectiveMarks');
@@ -105,6 +112,7 @@ describe('useMapObjectiveMarks', () => {
       'task-pinned': { self: true },
       'task-unpinned': { self: true },
     };
+    confirmedTaskIds.value = new Set(['task-pinned', 'task-unpinned']);
     pinnedTaskIds.value = ['task-pinned'];
     const mapId = computed(() => 'customs');
     const shouldShowCompletedObjectives = computed(() => false);
@@ -138,6 +146,7 @@ describe('useMapObjectiveMarks', () => {
       'task-1': { self: true },
       'task-2': { self: true },
     };
+    confirmedTaskIds.value = new Set(['task-1', 'task-2']);
     pinnedTaskIds.value = ['task-2'];
     const mapId = computed(() => 'customs');
     const shouldShowCompletedObjectives = computed(() => false);
@@ -157,6 +166,7 @@ describe('useMapObjectiveMarks', () => {
       'task-pinned': { self: true },
       'task-unpinned': { self: true },
     };
+    confirmedTaskIds.value = new Set(['task-pinned', 'task-unpinned']);
     pinnedTaskIds.value = ['task-pinned'];
     const tasks: Task[] = [
       {
@@ -180,5 +190,20 @@ describe('useMapObjectiveMarks', () => {
     expect(mapObjectiveMarks.value.find((mark) => mark.id === 'obj-pinned')?.pinned).toBe(true);
     expect(mapObjectiveMarks.value.find((mark) => mark.id === 'obj-unpinned')?.pinned).toBe(false);
     expect(mapObjectiveMarks.value).toHaveLength(2);
+  });
+  it('does not render an inferred available quest absent from static state', async () => {
+    const { useMapObjectiveMarks } = await setup();
+    unlockedTasks.value = { inferred: { self: true } };
+    confirmedTaskIds.value = new Set(['confirmed']);
+    const tasks: Task[] = [
+      { id: 'inferred', objectives: [objectiveWithLocation('inferred-objective', 'customs')] },
+      { id: 'confirmed', objectives: [objectiveWithLocation('confirmed-objective', 'customs')] },
+    ];
+    const { mapObjectiveMarks } = useMapObjectiveMarks({
+      mapId: computed(() => 'customs'),
+      shouldShowCompletedObjectives: computed(() => false),
+      tasks: computed(() => tasks),
+    });
+    expect(mapObjectiveMarks.value.map((mark) => mark.id)).toEqual(['confirmed-objective']);
   });
 });

@@ -3,6 +3,7 @@ import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { hasSupabaseAuthSessionHint } from '@/utils/clientStorage';
 import { logger } from '@/utils/logger';
 import { shouldUseOfflineSupabaseFallback } from '@/utils/runtimeConfig';
+import { isStaticQuestModeEnabled } from '@/utils/staticQuestHydration';
 import { hydrateUserFromSession } from '@/utils/userHydration';
 type OAuthProvider = 'twitch' | 'discord' | 'google' | 'github';
 type SupabaseUser = {
@@ -179,6 +180,10 @@ export default defineNuxtPlugin({
   name: 'supabase',
   async setup() {
     const runtimeConfig = useRuntimeConfig();
+    if (isStaticQuestModeEnabled()) {
+      logger.info('[Supabase] Disabled for static quest mode');
+      return { provide: { supabase: buildStub() } };
+    }
     const supabaseUrl = String(runtimeConfig.public.supabaseUrl || '').trim();
     const supabaseKey = String(runtimeConfig.public.supabaseAnonKey || '').trim();
     const missingConfigMessage = '[Supabase] Missing SUPABASE_URL or SUPABASE_ANON_KEY';
