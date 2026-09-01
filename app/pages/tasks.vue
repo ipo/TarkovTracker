@@ -24,7 +24,7 @@
         v-if="selectedMap"
         class="mt-5"
         :map="selectedMap"
-        :marks="[]"
+        :marks="mapObjectiveMarks"
         :show-extracts="true"
         :show-extract-toggle="true"
         :show-legend="true"
@@ -45,11 +45,14 @@
   </section>
 </template>
 <script setup lang="ts">
+  import { buildStaticObjectiveMarks } from '@/features/maps/staticObjectiveMarks';
   import { getMapRecommendationTier } from '@/features/tasks/mapRecommendation';
   import { useMetadataStore } from '@/stores/useMetadata';
+  import { useTarkovStore } from '@/stores/useTarkov';
   useSeoMeta({ title: 'Tasks and Maps' });
   const { t } = useI18n({ useScope: 'global' });
   const metadataStore = useMetadataStore();
+  const tarkovStore = useTarkovStore();
   const maps = computed(() => metadataStore.mapsWithSvg);
   const selectedMapId = ref<string | null>(null);
   watch(
@@ -62,4 +65,13 @@
     { immediate: true }
   );
   const selectedMap = computed(() => maps.value.find((map) => map.id === selectedMapId.value));
+  const mapObjectiveMarks = computed(() =>
+    buildStaticObjectiveMarks({
+      activeTaskIds: metadataStore.confirmedStaticUnlockedTaskIds,
+      isObjectiveComplete: (objectiveId) => tarkovStore.isTaskObjectiveComplete(objectiveId),
+      mapId: selectedMapId.value,
+      scores: metadataStore.staticMapScores,
+      tasks: metadataStore.tasks,
+    })
+  );
 </script>
